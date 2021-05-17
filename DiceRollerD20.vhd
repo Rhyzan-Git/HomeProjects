@@ -1,3 +1,30 @@
+--Sections for project
+--Internal PseudoRandom Number Generator
+--	Fast Clock to cycle through list of random numbers
+--	Should each dice have a PseduoRNG or is it possible to have one central PsuedoRNG?
+--		Each number is divisable by 600 in some form. Could each switch enable a divider resulting in the correct dice being selected?
+--			d4 - Divides by 150
+--			d6 - Divides by 100
+--			d8 - Divides by 75
+--			d10 - Divides by 60
+--			d12 - Divides by 50
+--			d20 - Divides by 30
+--			d100 - Divides by 6
+--	Look up LFSR, might be easier to impliment one for each dice Possible help - http://outputlogic.com/?page_id=275
+--User interface 
+--	x2 7-Seg Displays 
+--		Must display result of roll and hold until cleared
+--	Selector switches for 1d4, 1d6, 1d8, 1d10, 1d20, 1d100
+--		Will display on 7-Seg which is selected at the moment the switch is enabled
+-- 		See PsuedoRNG section, ideally one generator for the whole system
+--	Roll button
+--		Rolls currently selected dice and sends result to 7-segs to be displayed
+--		Holds result until cleared
+--	Clear roll button
+--		Clears Flip-Flop data
+--Switch Debounce
+
+
 entity D20_Roller is
     Port(
 Roll_button : in std:logic;
