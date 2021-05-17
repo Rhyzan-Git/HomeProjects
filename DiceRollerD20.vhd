@@ -176,3 +176,8 @@ if (AN_7seg = "0001") then 						--Displays 1s place
     if Dice_10s = “00” then Display_7seg_LED <= "0111111";	--Displays 0
     elsif Dice_10s = “01” then Display_7seg_LED <= "0000110";	--Displays 1
     elsif Dice_10s = “10” then Display_7seg_LED <= "1011011"; 	--Displays 2
+    end if;
+end if;
+	
+end process;
+end behavioral;
