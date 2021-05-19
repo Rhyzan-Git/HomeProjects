@@ -1,80 +1,151 @@
 --Sections for project - Based on Top Level Diagram
+--NOTES:
+--How Prescaler works
+--	Prescaler determines the clock frequency. (System Clock/Desired clock)/2 = Prescaler. 
+--	Convert to binary afterwards.
+--
+--Source for 8-bit LFSR 
+--	https://www.engineersgarage.com/vhdl/feed-back-register-in-vhdl/
+--
+--LFSR will be between 50% (d8) to 78% (d100) efficent at generating a random number to pass through the filter.
+--	With a 2khz clock that means on average a new number will be generated every 0.625ms to 1ms. 
+---------------------------------------------------------------------------------------------
+--Ports + 12Mhz system clock 
+sysClk : in std:logic; 				--12Mhz System Clock
+Reset : inout std_ logic; 			--Used for 7-seg display driver logic
+AN_7seg : inout std_logic_vector(3 downto 0);	--Drives 7-Seg Display
+--Signals
 
---12Mhz system clock
--- 	Used to build every other clock in the system
---	Define the Clock
 
+---------------------------------------------------------------------------------------------
 --LFSR clock
---	Used as the clock for LFSR2
---	Define pre-scaler
---	Define and build LFSR clock
-
---LFSR Random Number Ganerator (8-bit) or (7-bit)
+--LFSR clock pre-scaler
+signal LFSR_clk_prescaler : std_logic_vector (11 downto 0) := “101110111000”;
+signal LFSR_clk_prescaler_counter : std_logic_vector (11 downto 0) := (others => ‘0’);
+signal LFSR_clk : std_logic := ‘0’;
+--Generates a 2khz clock from the 12Mhz system clock
+--Used as the clock for the LFSR Random Number Generator
+if rising_edge(sysClk) then
+	LFSR_clk_prescaler_counter <= LFSR_clk_prescaler_counter + 1;
+	if (LFSR_clk_prescaler_counter > LFSR_clk_prescaler) then 
+		LFSR_clk <= not LFSR_clk;
+	  	LFSR_clk_prescaler_counter <= (others => ‘0’);
+	end if;
+end if;	
+---------------------------------------------------------------------------------------------
+--LFSR Random Number Ganerator (8-bit)
 --	Generates a random string of bits on a fast clock
 --	Constantly running and passing strings of bits into Filter for Valid Numbers
 --	Define LFSR RNG logic
-
+	
+---------------------------------------------------------------------------------------------
 --Debounce clock
---	Used as the clock for debounce shift registers
---	Define pre-scaler
---	Define and build debounce clock
-
+--Debounce clock pre-scaler
+signal Debounce_clk_prescaler : std_logic_vector (15 downto 0) := “1110101001100000”;
+signal Debounce_clk_prescaler_counter : std_logic_vector (15 downto 0) := (others => ‘0’);
+signal Debounce_clk : std_logic := ‘0’;
+--Generates a 100hz clock from the 12Mhz system clock
+--Used as the clock for debounce shift registers
+if rising_edge(sysClk) then
+	Debounce_clk_prescaler_counter <= Debounce_clk_prescaler_counter + 1;
+	if (Debounce_clk_prescaler_counter > Debounce_clk_prescaler) then 
+		Debounce_clk <= not Debounce_clk;
+	  	Debounce_clk_prescaler_counter <= (others => ‘0’);
+	end if;
+end if;	
+---------------------------------------------------------------------------------------------	
+--7-Seg Display clock
+--7-Seg Display clock pre-scaler
+signal Display_clk_prescaler : std_logic_vector (13 downto 0) := “11101010011000”;
+signal Dispaly_clk_prescaler_counter : std_logic_vector (13 downto 0) := (others => ‘0’);
+signal Display_clk : std_logic := ‘0’;
+--Generates a 400hz clock from the 12Mhz system clock
+--Used as the clock to drive each 7-seg display
+if rising_edge(sysClk) then
+	Display_clk_prescaler_counter <= Display_clk_prescaler_counter + 1;
+	if (Display_clk_prescaler_counter > Display_clk_prescaler) then 
+		Display_clk <= not Display_clk;
+	  	Display_clk_prescaler_counter <= (others => ‘0’);
+	end if;
+end if;
+	
+--Enables the 7-seg Displays
+if (reset = ‘1’) then
+	AN_7seg <= “0001”;
+elsif rising_edge(Display_clk) then
+	AN_7seg(1) <= AN_7seg(0); AN_7seg(2) <= AN_7seg(1); 
+	AN_7seg(3) <= AN_7seg(2); AN_7seg(0) <= AN_7seg(3);	
+end if;
+---------------------------------------------------------------------------------------------
 --Debounce logic
 --	Shift register to debounce push button switches
 --	Define debounce logic
+	
+	--Shift register to debounce button press
+If rising_edge(Debounce_clk) then
+	Debounce_1 <= Roll_button; 
+Debounce_2 <= Debounce_1; 
+Debounce_3 <= Debounce_2;
+End if;
 
+--Single pulse sampling the first two blocks of the shift register. Once the third block goes high the pulse goes low.
+Roll_button_debounced <= Debounce_1 and Debounce_2 and not Debounce_3;
+---------------------------------------------------------------------------------------------
 --Roll dice button (Hold)
 --	Used to hold the current string of bits in the Random Number Pool
 --	Define Roll dice button logic
 
+---------------------------------------------------------------------------------------------
 --Clear roll dice button (Reset)
 --	Used to clear the current string of bits in the Random Number Pool
 --	Used to enable the Random Number Pool to start accepting new strings of bits
 --	Define Clear roll dice button logic
 
+---------------------------------------------------------------------------------------------
 --Select dice button (Cycles through dice)
 --	Used to select through dice (d4, d6, d8, d10, d12, d20, d100)
 --	Define Select dice button logic
 
+---------------------------------------------------------------------------------------------
 --Switching dice logic
 --	Takes pulse from Select dice button and changes selected dice
 --	Interects with 7-seg display to output selected dice
 --	Interects with Filter for Valid Numbers to change parameters
 --	Define Switching dice logic
 
+---------------------------------------------------------------------------------------------
 --Filter for Valid Numbers
 --	Observes numbers being generated by the 8-Bit LFSR and pulls valid numbers based on filter selected
 --	Passes Valid numbers to Random Number Pool
 --	Define Filter for Valid Numbers logic
 
+---------------------------------------------------------------------------------------------
 --Random Number Pool
 --	Stores strings of bits based on what is currently inside the Filter of Valid Numbers
 --	Define Random Number Pool logic
 
---7-Seg Display clock
---	Used as the clock to drive each 7-seg display
---	Define pre-scaler
---	Define and build 7-seg display clock
-
+---------------------------------------------------------------------------------------------
 --7-Seg Display logic (Selected Dice)
 --	Used to display currently selected dice
 --	Needs to be linked with Rolled Dice Logic (Enabling Displays)
 --	Define 7-Seg Display logic
 
+---------------------------------------------------------------------------------------------
 --7-Seg Display logic (Rolled Dice)
 --	Used to display Rolled dice result
 --	Needs to be linked with Selected Dice Logic (Enabling Displays)
 --	Define 7-Seg Display logic
 
+---------------------------------------------------------------------------------------------
 
 
-
+-- Anything below here is not used
 entity D20_Roller is
     Port(
 Roll_button : in std:logic;
-AN_7seg : inout std_logic_vector(3 downto 0);
+
 Display_7seg_LED : out std_logic_vector(6 downto 0);
-Reset : inout std_ logic;
+
 );
 
 Signal Roll_button_debounced, Debounce_1, Debounce_2, Debounce_3 : std_logic;
@@ -85,63 +156,10 @@ Signal Dice_1s : std_logic_vector(1 downto 0);
 Signal Dice_10s : std_logic_vector(3 downto 0);
 
 
---Prescaler determines the clock frequency. (System Clock/Desired clock)/2 = Prescaler. --Convert to binary afterwards.
---For 100hz Clock
-Signal Debounce_clk_prescaler : std_logic_vector (15 downto 0) := “1110101001100000”;
-Signal Debounce_clk_prescaler_counter : std_logic_vector (15 downto 0) := (others => ‘0’);
-Signal Debounce_clk : std_logic := ‘0’;
 
---For 400hz Clock
-Signal Display_clk_prescaler : std_logic_vector (13 downto 0) := “11101010011000”;
-Signal Dispaly_clk_prescaler_counter : std_logic_vector (13 downto 0) := (others => ‘0’);
-Signal Display_clk : std_logic := ‘0’;
-
-- For 7.7khz Clock
-Signal Roller_clk_prescaler : std_logic_vector (9 downto 0) := “1100001011”;
-Signal Roller_clk_prescaler_counter : std_logic_vector (9 downto 0) := (others => ‘0’);
-Signal Roller_clk : std_logic := ‘0’;
-
---Clock generators
---Generates a 100hz clock based on the 12Mhz system clock
-If rising_edge(sysClk) then
-	Debounce_clk_prescaler_counter <= Debounce_clk_prescaler_counter + 1;
-	If (Debounce_clk_prescaler_counter > Debounce_clk_prescaler) then 
-		Debounce_clk <= not Debounce_clk;
-	  	Debounce_clk_prescaler_counter <= (others => ‘0’);
-End if;
-End if;
-
---Generates a 400hz clock based on the 12Mhz system clock
-If rising_edge(sysClk) then
-	Display_clk_prescaler_counter <= Display_clk_prescaler_counter + 1;
-	If (Display_clk_prescaler_counter > Display_clk_prescaler) then 
-		Display_clk <= not Display_clk;
-	  	Display_clk_prescaler_counter <= (others => ‘0’);
-End if;
-End if;
-
---Pauses Roller clock if roll button is pressed
-If (Pause = "1") then
-Roller_clk <= "0";
---Generates a 7.7Khz clock based on the 12Mhz system clock
-Elsif rising_edge(sysClk) then
-	Roller_clk_prescaler_counter <= Roller_clk_prescaler_counter + 1;
-	If (Roller_clk_prescaler_counter > Roller_clk_prescaler) then 
-		Roller_clk <= not Roller_clk;
-	  	Roller_clk_prescaler_counter <= (others => ‘0’);
-End if;
-End if;
 
 --User input
---Shift register to debounce button press
-If rising_edge(Debounce_clk) then
-	Debounce_1 <= Roll_button; 
-Debounce_2 <= Debounce_1; 
-Debounce_3 <= Debounce_2;
-End if;
 
---Single pulse sampling the first two blocks of the shift register. Once the third block goes high the pulse goes low.
-Roll_button_debounced <= Debounce_1 and Debounce_2 and not Debounce_3;
 
 --Starts pause condition if roll button is pressed
 Pause <= Roll_button_debounced or (Pause and not Reset);
@@ -152,13 +170,6 @@ Roll <= Dice_side;
 End if;
 
 --Back-end
---Enables the 7seg Displays
-If (reset = ‘1’) then
-	AN_7seg <= “0001”;
-Elsif rising_edge(Display_clk) then
-	AN_7seg(1) <= AN_7seg(0); AN_7seg(2) <= AN_7seg(1); 
-AN_7seg(3) <= AN_7seg(2); AN_7seg(0) <= AN_7seg(3);
-End if;
 
 If (reset = ‘1’) then
 Dice_side <= “00000000000000000001”;
