@@ -18,6 +18,7 @@ entity LFSRDiceRoller is
 --Ports + 12Mhz system clock 
 port (	sysClk : in std:logic; 					--12Mhz System Clock
 	Reset : inout std_ logic; 				--Used for 7-seg display driver logic
+	Roll_Button,Select_Button,Clear_Button : in std_logic;	--User input buttons
 	Enable_7seg : inout std_logic_vector(3 downto 0)	--Shift Register to enable 7-Seg Displays
       );
 end LFSRDiceRoller;
@@ -25,17 +26,38 @@ end LFSRDiceRoller;
 architecture LFSRDiceRoller_behavioral of LFSRDiceRoller is
 
 --Signals
-signal LFSR_output: out std_logic_vector (7 DOWNTO 0);		--LFSR output signal (8-bits)		
-signal LFSR_current_state, LFSR_next_state: std_logic_vector (7 DOWNTO 0);	--LFSR states
-signal LFSR_feedback: std_logic;				--LFSR XOR Feedback loop
 
-begin	   
----------------------------------------------------------------------------------------------
---LFSR clock
 --LFSR clock pre-scaler
 signal LFSR_clk_prescaler : std_logic_vector (11 downto 0) := “101110111000”;
 signal LFSR_clk_prescaler_counter : std_logic_vector (11 downto 0) := (others => ‘0’);
 signal LFSR_clk : std_logic := ‘0’;
+
+--For LFSR Logic
+signal LFSR_output: out std_logic_vector (7 DOWNTO 0);		--LFSR output signal (8-bits)		
+signal LFSR_current_state, LFSR_next_state: std_logic_vector (7 DOWNTO 0);	--LFSR states
+signal LFSR_feedback: std_logic;				--LFSR XOR Feedback loop
+	
+--Debounce clock pre-scaler
+signal Debounce_clk_prescaler : std_logic_vector (15 downto 0) := “1110101001100000”;
+signal Debounce_clk_prescaler_counter : std_logic_vector (15 downto 0) := (others => ‘0’);
+signal Debounce_clk : std_logic := ‘0’;
+	
+--For Debounce Logic
+signal Roll_button_debounced : std_logic;	--Single pulse for Roll button
+signal Select_button_debounced : std_logic;	--Single pulse for Select button
+signal Clear_button_debounced : std_logic;	--Single pulse for Clear button
+signal RB_debounce_1, RB_debounce_2, RB_debounce_3 : std_logic;	--Shift Registers for Roll debounce
+signal SB_debounce_1, SB_debounce_2, SB_debounce_3 : std_logic;	--Shift Registers for Select debounce
+signal CB_debounce_1, CB_debounce_2, CB_debounce_3 : std_logic;	--Shift Registers for Clear debounce
+
+--7-Seg Display clock pre-scaler
+signal Display_clk_prescaler : std_logic_vector (13 downto 0) := “11101010011000”;
+signal Dispaly_clk_prescaler_counter : std_logic_vector (13 downto 0) := (others => ‘0’);
+signal Display_clk : std_logic := ‘0’;
+
+begin	   
+---------------------------------------------------------------------------------------------
+--LFSR clock
 --Generates a 2khz clock from the 12Mhz system clock
 --Used as the clock for the LFSR Random Number Generator
 if rising_edge(sysClk) then
@@ -47,10 +69,9 @@ if rising_edge(sysClk) then
 end if;	
 ---------------------------------------------------------------------------------------------
 --LFSR Random Number Ganerator (8-bit)
---	Generates a random string of bits on a fast clock
---	Constantly running and passing strings of bits into Filter for Valid Numbers
---	Define LFSR RNG logic
-	
+--Generates a random string of bits on a fast clock
+--Constantly running and passing strings of bits into Filter for Valid Numbers
+--LFSR State machine	
 StateReg: process (LFSR_clk, Reset)
 	if (Reset = '1') then
 		LFSR_current_state <= (0 => '1', others =>'0');
@@ -69,10 +90,6 @@ LFSR_next_state <= LFSR_feedback & LFSR_current_state(7 DOWNTO 1);
 LFSR_output <= LFSR_current_state;											
 ---------------------------------------------------------------------------------------------
 --Debounce clock
---Debounce clock pre-scaler
-signal Debounce_clk_prescaler : std_logic_vector (15 downto 0) := “1110101001100000”;
-signal Debounce_clk_prescaler_counter : std_logic_vector (15 downto 0) := (others => ‘0’);
-signal Debounce_clk : std_logic := ‘0’;
 --Generates a 100hz clock from the 12Mhz system clock
 --Used as the clock for debounce shift registers
 if rising_edge(sysClk) then
@@ -84,10 +101,6 @@ if rising_edge(sysClk) then
 end if;	
 ---------------------------------------------------------------------------------------------	
 --7-Seg Display clock
---7-Seg Display clock pre-scaler
-signal Display_clk_prescaler : std_logic_vector (13 downto 0) := “11101010011000”;
-signal Dispaly_clk_prescaler_counter : std_logic_vector (13 downto 0) := (others => ‘0’);
-signal Display_clk : std_logic := ‘0’;
 --Generates a 400hz clock from the 12Mhz system clock
 --Used as the clock to drive each 7-seg display
 if rising_edge(sysClk) then
@@ -107,18 +120,25 @@ elsif rising_edge(Display_clk) then
 end if;
 ---------------------------------------------------------------------------------------------
 --Debounce logic
---	Shift register to debounce push button switches
---	Define debounce logic
-	
-	--Shift register to debounce button press
-If rising_edge(Debounce_clk) then
-	Debounce_1 <= Roll_button; 
-Debounce_2 <= Debounce_1; 
-Debounce_3 <= Debounce_2;
-End if;
+--Shift register to debounce Roll, Select and Clear button presses
+if rising_edge(Debounce_clk) then
+	RB_debounce_1 <= Roll_button;
+	RB_debounce_2 <= RB_debounce_1; 
+	RB_debounce_3 <= RB_debounce_2;
+
+	SB_debounce_1 <= Select_button;
+	SB_debounce_2 <= SB_debounce_1; 
+	SB_debounce_3 <= SB_debounce_2;
+
+	CB_debounce_1 <= Clear_button;
+	CB_debounce_2 <= CB_debounce_1; 
+	CB_debounce_3 <= CB_debounce_2;
+end if;
 
 --Single pulse sampling the first two blocks of the shift register. Once the third block goes high the pulse goes low.
-Roll_button_debounced <= Debounce_1 and Debounce_2 and not Debounce_3;
+Roll_button_debounced <= RB_debounce_1 and RB_debounce_2 and not RB_debounce_3;
+Select_button_debounced <= SB_debounce_1 and SB_debounce_2 and not SB_debounce_3;
+Clear_button_debounced <= CB_debounce_1 and CB_debounce_2 and not CB_debounce_3;
 ---------------------------------------------------------------------------------------------
 --Roll dice button (Hold)
 --	Used to hold the current string of bits in the Random Number Pool
@@ -135,12 +155,26 @@ Roll_button_debounced <= Debounce_1 and Debounce_2 and not Debounce_3;
 --	Used to select through dice (d4, d6, d8, d10, d12, d20, d100)
 --	Define Select dice button logic
 
+signal Selected_dice_BCD : std_logic_vector(2 downto 0) := (others => ‘0’);
+if (Reset = '1') then
+	Selected_dice_BCD <= “000”;
+elsif rising_edge(Select_button_debounced) then
+	Selected_dice_current <= Selected_dice_next;
+end if;
+	
+Selected    <= "0000"     WHEN (d1Curr=9) ELSE
+              d1Curr+1;
+
+
+
 ---------------------------------------------------------------------------------------------
 --Switching dice logic
 --	Takes pulse from Select dice button and changes selected dice
 --	Interects with 7-seg display to output selected dice
 --	Interects with Filter for Valid Numbers to change parameters
 --	Define Switching dice logic
+
+
 
 ---------------------------------------------------------------------------------------------
 --Filter for Valid Numbers
@@ -156,13 +190,34 @@ Roll_button_debounced <= Debounce_1 and Debounce_2 and not Debounce_3;
 ---------------------------------------------------------------------------------------------
 --7-Seg Display logic (Selected Dice)
 --	Used to display currently selected dice
---	Needs to be linked with Rolled Dice Logic (Enabling Displays)
 --	Define 7-Seg Display logic
+
+
+	       
+if (Enable_7seg = "1000") then 						--Displays 10s place for Selected Dice
+
+
+
+
+
+
+
+    if Dice_1s = “0000” then Display_7seg_LED <= "0111111";		--Displays 0
+    elsif Dice_1s = “0001” then Display_7seg_LED <= "0000110";		--Displays 1
+    elsif Dice_1s = “0010” then Display_7seg_LED <= "1011011"; 		--Displays 2 
+    elsif Dice_1s = “0011” then Display_7seg_LED <= "1001111"; 		--Displays 3 
+    elsif Dice_1s = “0100” then Display_7seg_LED <= "1100110"; 		--Displays 4 
+    elsif Dice_1s = “0101” then Display_7seg_LED <= "1101101"; 		--Displays 5 
+    elsif Dice_1s = “0110” then Display_7seg_LED <= "1111101"; 		--Displays 6 
+    elsif Dice_1s = “0111” then Display_7seg_LED <= "0000111"; 		--Displays 7 
+    elsif Dice_1s = “1000” then Display_7seg_LED <= "1111111";		--Displays 8     
+    elsif Dice_1s = “1001” then Display_7seg_LED <= "1101111"; 		--Displays 9
+
+if (Enable_7seg = "0100") then 						--Displays 1s place for Selected dice
 
 ---------------------------------------------------------------------------------------------
 --7-Seg Display logic (Rolled Dice)
 --	Used to display Rolled dice result
---	Needs to be linked with Selected Dice Logic (Enabling Displays)
 --	Define 7-Seg Display logic
 
 ---------------------------------------------------------------------------------------------
@@ -244,17 +299,7 @@ End if;
 
 
 --User output
-if (AN_7seg = "0001") then 						--Displays 1s place
-    if Dice_1s = “0000” then Display_7seg_LED <= "0111111";		--Displays 0
-    elsif Dice_1s = “0001” then Display_7seg_LED <= "0000110";		--Displays 1
-    elsif Dice_1s = “0010” then Display_7seg_LED <= "1011011"; 		--Displays 2 
-    elsif Dice_1s = “0011” then Display_7seg_LED <= "1001111"; 		--Displays 3 
-    elsif Dice_1s = “0100” then Display_7seg_LED <= "1100110"; 		--Displays 4 
-    elsif Dice_1s = “0101” then Display_7seg_LED <= "1101101"; 		--Displays 5 
-    elsif Dice_1s = “0110” then Display_7seg_LED <= "1111101"; 		--Displays 6 
-    elsif Dice_1s = “0111” then Display_7seg_LED <= "0000111"; 		--Displays 7 
-    elsif Dice_1s = “1000” then Display_7seg_LED <= "1111111";		--Displays 8     
-    elsif Dice_1s = “1001” then Display_7seg_LED <= "1101111"; 		--Displays 9
+
 
  if (AN_7seg = "0010") then 					--Displays 10s place
     if Dice_10s = “00” then Display_7seg_LED <= "0111111";	--Displays 0
