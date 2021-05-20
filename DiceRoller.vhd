@@ -74,6 +74,9 @@ signal d100_number_pool : std_logic_vector (7 downto 0) := (others => '0');
 --For Random Number Pool logic
 signal Number_pool_output : std_logic_vector(7 downto 0);
 
+--For Binary to BCD Converter
+signal BCD_ones, BCD_tens, BDC_hunds : STD_LOGIC_VECTOR (3 downto 0);   --BCD output 7-seg display, rolled dice	
+
 end LFSRDiceRoller;
 
 architecture LFSRDiceRoller_behavioral of LFSRDiceRoller is
@@ -82,6 +85,10 @@ begin
 
 process (sysClk)
 
+--For Shift add 3 algorithm (Binary to BCD converter)	
+variable Number_pool_binary : std_logic_vector (7 downto 0) ;
+variable BCD : std_logic_vector (11 downto 0) ;
+	
 begin
 ---------------------------------------------------------------------------------------------
 --LFSR clock
@@ -99,13 +106,13 @@ end if;
 --Generates a random string of bits on a fast clock
 --Constantly running and passing strings of bits into Filter for Valid Numbers
 --LFSR State machine	
-StateReg: process (LFSR_clk, Reset)
+--StateReg: process (LFSR_clk, Reset)
 	if (Reset = '1') then
 		LFSR_current_state <= (0 => '1', others =>'0');
     	elsif (LFSR_clk = '1' and LFSR_clk'event) then
 	       LFSR_current_state <= LFSR_next_state;
    	end if;
-end process;
+--end process;
 
 --Generates new psuedorandom number
 LFSR_feedback <= LFSR_current_state(4) XOR LFSR_current_state(3) XOR LFSR_current_state(2) XOR LFSR_current_state(0); 	
@@ -291,12 +298,10 @@ end if;
 
 ---------------------------------------------------------------------------------------------
 --Binary to BCD Converter
---	Convers Binary output of Number Pool to BCD to be used by 7-seg Displays
-
-process ( Number_pool_output )
-    variable Number_pool_binary : std_logic_vector (7 downto 0) ;
-    variable BCD : std_logic_vector (11 downto 0) ;
-begin
+--	Convers Binary output of Number Pool to BCD to be used by 7-seg Displays       	       
+--process ( Number_pool_output )       
+	       
+--begin
     Number_pool_binary := Number_pool_output;
     BCD := (others => '0') ;
 
@@ -319,7 +324,7 @@ begin
     BCD_tens <= BCD(7  downto 4) ;		--Displays tens place
     BCD_ones <= BCD(3  downto 0) ;		--Displays ones place
 
-end process ;
+--end process ;
 ---------------------------------------------------------------------------------------------
 --7-Seg Display logic (Selected Dice)
 --	Used to display currently selected dice
