@@ -77,6 +77,8 @@ signal d100_number_pool : std_logic_vector (7 downto 0) : (others => '0');
 --For Random Number Pool logic
 signal Number_pool_output : std_logic_vector(7 downto 0);
 
+process (sysClk)
+
 begin	   
 ---------------------------------------------------------------------------------------------
 --LFSR clock
@@ -161,17 +163,6 @@ end if;
 Roll_button_debounced <= RB_debounce_1 and RB_debounce_2 and not RB_debounce_3;
 Select_button_debounced <= SB_debounce_1 and SB_debounce_2 and not SB_debounce_3;
 Clear_button_debounced <= CB_debounce_1 and CB_debounce_2 and not CB_debounce_3;
----------------------------------------------------------------------------------------------
---Roll dice button (Hold)
---	Used to hold the current string of bits in the Random Number Pool
---	Define Roll dice button logic
-
----------------------------------------------------------------------------------------------
---Clear roll dice button (Reset)
---	Used to clear the current string of bits in the Random Number Pool
---	Used to enable the Random Number Pool to start accepting new strings of bits
---	Define Clear roll dice button logic
-
 ---------------------------------------------------------------------------------------------
 --Select dice button (Cycles through dice)
 --	Used to select through dice (d4, d6, d8, d10, d12, d20, d100)
@@ -273,16 +264,28 @@ d100_number_pool <= std_logic_vector(d100_filter_output);				--assigns filtered 
 ---------------------------------------------------------------------------------------------
 --Random Number Pool
 --	Stores strings of bits based on what is currently inside the Filter of Valid Numbers
-
-   if Selected_dice_output = “000” then Number_pool_output <= d4_number_pool;
-elsif Selected_dice_output = “001” then Number_pool_output <= d6_number_pool;
-elsif Selected_dice_output = “010” then Number_pool_output <= d8_number_pool;
-elsif Selected_dice_output = “111” then Number_pool_output <= d10_number_pool;
-elsif Selected_dice_output = “101” then Number_pool_output <= d12_number_pool;
-elsif Selected_dice_output = “101” then Number_pool_output <= d20_number_pool;
-elsif Selected_dice_output = “110” then Number_pool_output <= d100_number_pool;
-elsif Selected_dice_output = “111” then Number_pool_output <= "00000000";
+if rising_edge(Roll_button_debounced) then
+	   if Selected_dice_output = “000” then Number_pool_output <= d4_number_pool;
+	elsif Selected_dice_output = “001” then Number_pool_output <= d6_number_pool;
+	elsif Selected_dice_output = “010” then Number_pool_output <= d8_number_pool;
+	elsif Selected_dice_output = “111” then Number_pool_output <= d10_number_pool;
+	elsif Selected_dice_output = “101” then Number_pool_output <= d12_number_pool;
+	elsif Selected_dice_output = “101” then Number_pool_output <= d20_number_pool;
+	elsif Selected_dice_output = “110” then Number_pool_output <= d100_number_pool;
+	elsif Selected_dice_output = “111” then Number_pool_output <= "00000000";
+	end if;
 end if;
+---------------------------------------------------------------------------------------------
+--Roll dice button (Hold)
+--	Used to hold the current string of bits in the Random Number Pool
+--	Define Roll dice button logic
+
+---------------------------------------------------------------------------------------------
+--Clear roll dice button (Reset)
+--	Used to clear the current string of bits in the Random Number Pool
+--	Used to enable the Random Number Pool to start accepting new strings of bits
+--	Define Clear roll dice button logic
+
 ---------------------------------------------------------------------------------------------
 --Binary to BCD Converter
 --	Convers Binary output of Number Pool to BCD to be used by 7-seg Displays
@@ -369,41 +372,7 @@ elsif (Enable_7seg = "0001") then 						--Displays 1s place for Rolled Dice
 	elsif BCD_ones = "1001" then Display_7seg_LED <= "1101111";    	 	--Displays 9
 	end if;
 end if;
-
-
 ---------------------------------------------------------------------------------------------
-
-
--- Anything below here is not used
-entity D20_Roller is
-    Port(
-Roll_button : in std:logic;
-
-Display_7seg_LED : out std_logic_vector(6 downto 0);
-
-);
-
-Signal Roll_button_debounced, Debounce_1, Debounce_2, Debounce_3 : std_logic;
-Signal Pause : std_logic;
-Signal Dice_side : std_logic_vector(19 downto 0);
-Signal Roll : std_logic_vector(19 downto 0);
-Signal Dice_1s : std_logic_vector(1 downto 0);
-Signal Dice_10s : std_logic_vector(3 downto 0);
-
-
-
-
---User input
-
-
---Starts pause condition if roll button is pressed
-Pause <= Roll_button_debounced or (Pause and not Reset);
-
---Sets roll value after clock is paused
-If (Pause = "1") then
-Roll <= Dice_side;
-End if;
-
-
 end process;
-end behavioral;
+
+end LFSRDiceRoller_behavioral;
