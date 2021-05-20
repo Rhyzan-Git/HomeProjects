@@ -26,9 +26,6 @@ port (	sysClk : in std:logic; 					--12Mhz System Clock
       	Display_7seg_LED : out std_logic_vector (7 downto 0);	--For each 7-seg display LED
 	Enable_7seg : inout std_logic_vector(3 downto 0)	--Shift Register to enable 7-Seg Displays
       );
-end LFSRDiceRoller;
-
-architecture LFSRDiceRoller_behavioral of LFSRDiceRoller is
 
 --Signals
 
@@ -76,6 +73,10 @@ signal d100_number_pool : std_logic_vector (7 downto 0) : (others => '0');
 
 --For Random Number Pool logic
 signal Number_pool_output : std_logic_vector(7 downto 0);
+
+end LFSRDiceRoller;
+
+architecture LFSRDiceRoller_behavioral of LFSRDiceRoller is
 
 process (sysClk)
 
