@@ -404,60 +404,6 @@ If (Pause = "1") then
 Roll <= Dice_side;
 End if;
 
---Back-end
 
-If (reset = ‘1’) then
-Dice_side <= “00000000000000000001”;
-elsif rising_edge(Roller_clk) then
-Dice_side(1) <= Dice_side(0); Dice_side(2) <= Dice_side(1); 
-Dice_side(3) <= Dice_side(2); Dice_side(4) <= Dice_side(3);
-Dice_side(5) <= Dice_side(4); Dice_side(6) <= Dice_side(5);
-Dice_side(7) <= Dice_side(6); Dice_side(8) <= Dice_side(7);
-Dice_side(9) <= Dice_side(8); Dice_side(10) <= Dice_side(9);
-Dice_side(11) <= Dice_side(10); Dice_side(12) <= Dice_side(11);
-Dice_side(13) <= Dice_side(12); Dice_side(14) <= Dice_side(13);
-Dice_side(15) <= Dice_side(14); Dice_side(16) <= Dice_side(15);
-Dice_side(17) <= Dice_side(16); Dice_side(18) <= Dice_side(17);
-Dice_side(19) <= Dice_side(18); Dice_side(0) <= Dice_side(19);
-End if;
-
-
-    If (Roll = "00000000000000000001") then Dice_10s <= “01”; Dice_1s <= "0011" ;	--13
-elsif (Roll = "00000000000000000010") then Dice_10s <= “01”; Dice_1s <= "0111" ;	--17
-elsif (Roll = "00000000000000000100") then Dice_10s <= “01”; Dice_1s <= "1001" ;	--19
-elsif (Roll = "00000000000000001000") then Dice_10s <= “00”; Dice_1s <= "1001" ;	--9
-elsif (Roll = "00000000000000010000") then Dice_10s <= “00”; Dice_1s <= "0110" ;	--6
-elsif (Roll = "00000000000000100000") then Dice_10s <= “00”; Dice_1s <= "0001" ;        --1
-elsif (Roll = "00000000000001000000") then Dice_10s <= “00”; Dice_1s <= "1000" ;	--8
-elsif (Roll = "00000000000010000000") then Dice_10s <= “01”; Dice_1s <= "1000" ;	--18
-elsif (Roll = "00000000000100000000") then Dice_10s <= “00”; Dice_1s <= "0010" ;	--2
-elsif (Roll = "00000000001000000000") then Dice_10s <= “00”; Dice_1s <=  "0101" 	--5
-elsif (Roll = "00000000010000000000") then Dice_10s <= “00”; Dice_1s <= "0111" ;	--7
-elsif (Roll = "00000000100000000000") then Dice_10s <= “01”; Dice_1s <= "0110" ;	--16
-elsif (Roll = "00000001000000000000") then Dice_10s <= “00”; Dice_1s <= "0011" ;	--3
-elsif (Roll = "00000010000000000000") then Dice_10s <= “01”; Dice_1s <= "0000" ;	--10
-elsif (Roll = "00000100000000000000") then Dice_10s <= “00”; Dice_1s <= "0100" ;	--4
-elsif (Roll = "00001000000000000000") then Dice_10s <= “10”; Dice_1s <= "0000" ;	--20
-elsif (Roll = "00010000000000000000") then Dice_10s <= “01”; Dice_1s <= "0010" ;	--12
-elsif (Roll = "00100000000000000000") then Dice_10s <= “01”; Dice_1s <= "0100" ;	--14
-elsif (Roll = "01000000000000000000") then Dice_10s <= “01”; Dice_1s <= "0101" ;	--15
-elsif (Roll = "10000000000000000000") then Dice_10s <= “01”; Dice_1s <= "0001" ;	--11
-End if;
-
-
-
-
-
-
---User output
-
-
- if (AN_7seg = "0010") then 					--Displays 10s place
-    if Dice_10s = “00” then Display_7seg_LED <= "0111111";	--Displays 0
-    elsif Dice_10s = “01” then Display_7seg_LED <= "0000110";	--Displays 1
-    elsif Dice_10s = “10” then Display_7seg_LED <= "1011011"; 	--Displays 2
-    end if;
-end if;
-	
 end process;
 end behavioral;
