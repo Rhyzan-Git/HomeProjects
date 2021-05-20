@@ -9,14 +9,27 @@
 --
 --LFSR will be between 50% (d8) to 78% (d100) efficent at generating a random number to pass through the filter.
 --	With a 2khz clock that means on average a new number will be generated every 0.625ms to 1ms. 
+
 ---------------------------------------------------------------------------------------------
+library ieee;
+use ieee.std_logic_1164.ALL;
+
+entity LFSRDiceRoller is
 --Ports + 12Mhz system clock 
-sysClk : in std:logic; 				--12Mhz System Clock
-Reset : inout std_ logic; 			--Used for 7-seg display driver logic
-AN_7seg : inout std_logic_vector(3 downto 0);	--Drives 7-Seg Display
+port (	sysClk : in std:logic; 					--12Mhz System Clock
+	Reset : inout std_ logic; 				--Used for 7-seg display driver logic
+	Enable_7seg : inout std_logic_vector(3 downto 0)	--Shift Register to enable 7-Seg Displays
+      );
+end LFSRDiceRoller;
+
+architecture LFSRDiceRoller_behavioral of LFSRDiceRoller is
+
 --Signals
+signal LFSR_output: out std_logic_vector (7 DOWNTO 0);		--LFSR output signal (8-bits)		
+signal LFSR_current_state, LFSR_next_state: std_logic_vector (7 DOWNTO 0);	--LFSR states
+signal LFSR_feedback: std_logic;				--LFSR XOR Feedback loop
 
-
+begin	   
 ---------------------------------------------------------------------------------------------
 --LFSR clock
 --LFSR clock pre-scaler
@@ -38,6 +51,22 @@ end if;
 --	Constantly running and passing strings of bits into Filter for Valid Numbers
 --	Define LFSR RNG logic
 	
+StateReg: process (LFSR_clk, Reset)
+	if (Reset = '1') then
+		LFSR_current_state <= (0 => '1', others =>'0');
+    	elsif (LFSR_clk = '1' and LFSR_clk'event) then
+	       LFSR_current_state <= LFSR_next_state;
+   	end if;
+end process;
+
+--Generates new psuedorandom number
+LFSR_feedback <= LFSR_current_state(4) XOR LFSR_current_state(3) XOR LFSR_current_state(2) XOR LFSR_current_state(0); 	
+
+--Stores new psuedorandom number
+LFSR_next_state <= LFSR_feedback & LFSR_current_state(7 DOWNTO 1);							
+
+--Outputs current psuedorandom number
+LFSR_output <= LFSR_current_state;											
 ---------------------------------------------------------------------------------------------
 --Debounce clock
 --Debounce clock pre-scaler
@@ -71,10 +100,10 @@ end if;
 	
 --Enables the 7-seg Displays
 if (reset = ‘1’) then
-	AN_7seg <= “0001”;
+	Enable_7seg <= “0001”;
 elsif rising_edge(Display_clk) then
-	AN_7seg(1) <= AN_7seg(0); AN_7seg(2) <= AN_7seg(1); 
-	AN_7seg(3) <= AN_7seg(2); AN_7seg(0) <= AN_7seg(3);	
+	Enable_7seg(1) <= Enable_7seg(0); Enable_7seg(2) <= Enable_7seg(1); 
+	Enable_7seg(3) <= Enable_7seg(2); Enable_7seg(0) <= Enable_7seg(3);	
 end if;
 ---------------------------------------------------------------------------------------------
 --Debounce logic
