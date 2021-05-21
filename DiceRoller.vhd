@@ -21,7 +21,7 @@ use IEEE.std_logic_unsigned.all;
 entity LFSRDiceRoller is
 --Ports + 12Mhz system clock 
 port (	sysClk : in std_logic; 					--12Mhz System Clock
-	Reset : inout std_logic; 				--Used for 7-seg display driver logic
+	Reset : inout std_logic; 				
 	Roll_Button,Select_Button,Clear_Button : in std_logic;	--User input buttons
       	Display_7seg_LED : out std_logic_vector (7 downto 0);	--For each 7-seg display LED
 	Enable_7seg : inout std_logic_vector(3 downto 0)	--Shift Register to enable 7-Seg Displays
