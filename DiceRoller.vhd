@@ -186,8 +186,12 @@ elsif rising_edge(Select_button_debounced) then
 	Selected_dice_current <= Selected_dice_next;
 end if;
 	
- Selected_dice_next <= "000" when (Selected_dice_current=7) else
- 	Selected_dice_current +1;
+
+if (Selected_dice_current = "111") then
+	Selected_dice_next <= "000";
+	else
+	Selected_dice_next <= Selected_dice_current +1;
+end if;
 
 Selected_dice_output <= std_logic_vector(Selected_dice_current);
 ---------------------------------------------------------------------------------------------
@@ -203,73 +207,74 @@ elsif rising_edge(LFSR_clk) then
 end if;
 
 --Valid d4 numbers
---if Selected_dice_output = "000" then
-d4_filter_output <= d4_filter_output when 
-	       (LFSR_output_in(2 downto 0)>=5 or LFSR_output_in(2 downto 0)=0) else	--Checks if first 3 bits of LFSR output is between 1 and 4
-	LFSR_output_in(7 downto 0);							--Saves LFSR number to filter (Only first 3 bits are important)
+if (LFSR_output_in(2 downto 0)>=5 or LFSR_output_in(2 downto 0)=0) then		--Checks if first 3 bits of LFSR output is between 1 and 4
+	d4_filter_output <= d4_filter_output
+	else
+	d4_filter_output <= LFSR_output_in(7 downto 0);				--Saves LFSR number to filter (Only first 3 bits are important)
+end if;
 
-d4_filter_output(7 downto 3) := (others =>'0'); 					--fills unwanted bits with 0s
-d4_number_pool <= std_logic_vector(d4_filter_output);					--assigns filtered number to output
---end if;
+d4_filter_output(7 downto 3) := (others =>'0'); 				--fills unwanted bits with 0s
+d4_number_pool <= std_logic_vector(d4_filter_output);				--assigns filtered number to output
 
 --Valid d6 numbers
---elsif Selected_dice_output = "001"
-d6_filter_output <= d6_filter_output when 
-	       (LFSR_output_in(2 downto 0)=7 or LFSR_output_in(2 downto 0)=0) else	--Checks if first 3 bits of LFSR output is between 1 and 6
-	LFSR_output_in(7 downto 0);							--Saves LFSR number to filter (Only first 3 bits are important)
+if (LFSR_output_in(2 downto 0)=7 or LFSR_output_in(2 downto 0)=0) then		--Checks if first 3 bits of LFSR output is between 1 and 6
+	d6_filter_output <= d6_filter_output
+	else
+	d6_filter_output <= LFSR_output_in(7 downto 0);				--Saves LFSR number to filter (Only first 3 bits are important)
+end if;
 
-d6_filter_output(7 downto 3) := (others =>'0'); 					--fills unwanted bits with 0s
-d6_number_pool <= std_logic_vector(d6_filter_output);					--assigns filtered number to output
---end if;
+d6_filter_output(7 downto 3) := (others =>'0'); 				--fills unwanted bits with 0s
+d6_number_pool <= std_logic_vector(d6_filter_output);				--assigns filtered number to output
 
 --Valid d8 numbers
---elsif Selected_dice_output = "010"
-d8_filter_output <= d8_filter_output when 
-	       (LFSR_output_in(3 downto 0)>=9 or LFSR_output_in(3 downto 0)=0) else	--Checks if first 4 bits of LFSR output is between 1 and 8
-	LFSR_output_in(7 downto 0);							--Saves LFSR number to filter (Only first 4 bits are important)
+if (LFSR_output_in(3 downto 0)>=9 or LFSR_output_in(3 downto 0)=0) then		--Checks if first 4 bits of LFSR output is between 1 and 8
+	d8_filter_output <= d8_filter_output
+	else
+	d8_filter_output <= LFSR_output_in(7 downto 0);				--Saves LFSR number to filter (Only first 4 bits are important)
+end if;
 
-d8_filter_output(7 downto 4) := (others =>'0'); 					--fills unwanted bits with 0s
-d8_number_pool <= std_logic_vector(d8_filter_output);					--assigns filtered number to output
---end if;
+d8_filter_output(7 downto 4) := (others =>'0'); 				--fills unwanted bits with 0s
+d8_number_pool <= std_logic_vector(d8_filter_output);				--assigns filtered number to output
 
 --Valid d10 numbers
---elsif Selected_dice_output = "011"
-d10_filter_output <= d10_filter_output when 
-	       (LFSR_output_in(3 downto 0)>=11 or LFSR_output_in(3 downto 0)=0) else	--Checks if first 4 bits of LFSR output is between 1 and 10
-	LFSR_output_in(7 downto 0);							--Saves LFSR number to filter (Only first 4 bits are important)
+if (LFSR_output_in(3 downto 0)>=11 or LFSR_output_in(3 downto 0)=0) then	--Checks if first 4 bits of LFSR output is between 1 and 10
+	d10_filter_output <= d10_filter_output
+	else
+	d10_filter_output <= LFSR_output_in(7 downto 0);			--Saves LFSR number to filter (Only first 4 bits are important)
+end if;
 
-d10_filter_output(7 downto 4) := (others =>'0'); 					--fills unwanted bits with 0s
-d10_number_pool <= std_logic_vector(d10_filter_output);					--assigns filtered number to output
---end if;
+d10_filter_output(7 downto 4) := (others =>'0'); 				--fills unwanted bits with 0s
+d10_number_pool <= std_logic_vector(d10_filter_output);				--assigns filtered number to output
 
 --Valid d12 numbers
---elsif Selected_dice_output = "100"
-d12_filter_output <= d12_filter_output when 
-	       (LFSR_output_in(3 downto 0)>=13 or LFSR_output_in(3 downto 0)=0) else	--Checks if first 4 bits of LFSR output is between 1 and 12
-	LFSR_output_in(7 downto 0);							--Saves LFSR number to filter (Only first 4 bits are important)
+if (LFSR_output_in(3 downto 0)>=13 or LFSR_output_in(3 downto 0)=0) then	--Checks if first 4 bits of LFSR output is between 1 and 12
+	d12_filter_output <= d12_filter_output
+	else
+	d12_filter_output <= LFSR_output_in(7 downto 0);			--Saves LFSR number to filter (Only first 4 bits are important)
+end if;
 
-d12_filter_output(7 downto 4) := (others =>'0'); 					--fills unwanted bits with 0s
-d12_number_pool <= std_logic_vector(d12_filter_output);					--assigns filtered number to output
---end if;
+d12_filter_output(7 downto 4) := (others =>'0'); 				--fills unwanted bits with 0s
+d12_number_pool <= std_logic_vector(d12_filter_output);				--assigns filtered number to output
 
 --Valid d20 numbers
---elsif Selected_dice_output = "101"
-d20_filter_output <= d20_filter_output when 
-	       (LFSR_output_in(4 downto 0)>=21 or LFSR_output_in(4 downto 0)=0) else	--Checks if first 4 bits of LFSR output is between 1 and 10
-	LFSR_output_in(7 downto 0);							--Saves LFSR number to filter (Only first 4 bits are important)
+if (LFSR_output_in(4 downto 0)>=21 or LFSR_output_in(4 downto 0)=0) then	--Checks if first 5 bits of LFSR output is between 1 and 20
+	d20_filter_output <= d20_filter_output
+	else
+	d20_filter_output <= LFSR_output_in(7 downto 0);			--Saves LFSR number to filter (Only first 5 bits are important)
+end if;
 
-d20_filter_output(7 downto 5) := (others =>'0'); 					--fills unwanted bits with 0s
-d20_number_pool <= std_logic_vector(d20_filter_output);					--assigns filtered number to output
---end if;
+d20_filter_output(7 downto 5) := (others =>'0'); 				--fills unwanted bits with 0s
+d20_number_pool <= std_logic_vector(d20_filter_output);				--assigns filtered number to output
 
 --Valid d100 numbers
---elsif Selected_dice_output = "110"
-d100_filter_output <= d100_filter_output when 
-	       (LFSR_output_in(6 downto 0)>=101 or LFSR_output_in(6 downto 0)=0) else	--Checks if first 4 bits of LFSR output is between 1 and 10
-	LFSR_output_in(7 downto 0);							--Saves LFSR number to filter (Only first 4 bits are important)
+if (LFSR_output_in(6 downto 0)>=101 or LFSR_output_in(6 downto 0)=0) then	--Checks if first 7 bits of LFSR output is between 1 and 100
+	d100_filter_output <= d100_filter_output
+	else
+	d100_filter_output <= LFSR_output_in(7 downto 0);			--Saves LFSR number to filter (Only first 7 bits are important)
+end if;
 
-d100_filter_output(7) := (others =>'0'); 						--fills unwanted bits with 0s
-d100_number_pool <= std_logic_vector(d100_filter_output);				--assigns filtered number to output
+d100_filter_output(7) := (others =>'0'); 					--fills unwanted bits with 0s
+d100_number_pool <= std_logic_vector(d100_filter_output);			--assigns filtered number to output
 --end if;     
 ---------------------------------------------------------------------------------------------
 --Random Number Pool
