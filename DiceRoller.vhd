@@ -385,54 +385,54 @@ end process;
 segDisp: process (Enable_7seg, selected_dice_output, BCD_ones, BCD_tens)
 begin
 if (Enable_7seg = "1000") then 						--Displays 10s place for Selected dice
-	   if Selected_dice_output = "000" then Display_7seg_LED <= "00000000";	--d4	--Displays Blank
-	elsif Selected_dice_output = "001" then Display_7seg_LED <= "00000000";	--d6	--Displays Blank
-	elsif Selected_dice_output = "010" then Display_7seg_LED <= "00000000"; --d8	--Displays Blank
-	elsif Selected_dice_output = "011" then Display_7seg_LED <= "00000110"; --d10	--Displays 1
-	elsif Selected_dice_output = "100" then Display_7seg_LED <= "00000110"; --d12	--Displays 1
-	elsif Selected_dice_output = "101" then Display_7seg_LED <= "01011011"; --d20	--Displays 2
-	elsif Selected_dice_output = "110" then Display_7seg_LED <= "00111111"; --d1(00)--Displays 0
-	elsif Selected_dice_output = "111" then Display_7seg_LED <= "00000000"; --Blank (Not used)
+	   if Selected_dice_output = "000" then Display_7seg_LED <= "11111111";	--d4	--Displays Blank
+	elsif Selected_dice_output = "001" then Display_7seg_LED <= "11111111";	--d6	--Displays Blank
+	elsif Selected_dice_output = "010" then Display_7seg_LED <= "11111111";	--d8	--Displays Blank
+	elsif Selected_dice_output = "011" then Display_7seg_LED <= "11111001"; --d10	--Displays 1
+	elsif Selected_dice_output = "100" then Display_7seg_LED <= "11111001"; --d12	--Displays 1
+	elsif Selected_dice_output = "101" then Display_7seg_LED <= "10100100"; --d20	--Displays 2
+	elsif Selected_dice_output = "110" then Display_7seg_LED <= "11000000";	--d1(00)--Displays 0
+	elsif Selected_dice_output = "111" then Display_7seg_LED <= "11111111";	--Blank (Not used)
 	end if;
 	       
 elsif (Enable_7seg = "0100") then 						--Displays 1s place for Selected Dice
-	   if Selected_dice_output = "000" then Display_7seg_LED <= "01100110";	--d4	--Displays 4
-	elsif Selected_dice_output = "001" then Display_7seg_LED <= "01111101";	--d6	--Displays 6
-	elsif Selected_dice_output = "010" then Display_7seg_LED <= "01111111"; --d8	--Displays 8
-	elsif Selected_dice_output = "011" then Display_7seg_LED <= "00111111"; --d10	--Displays 0
-	elsif Selected_dice_output = "100" then Display_7seg_LED <= "01011011"; --d12	--Displays 2
-	elsif Selected_dice_output = "101" then Display_7seg_LED <= "00111111"; --d20	--Displays 0
-	elsif Selected_dice_output = "110" then Display_7seg_LED <= "00111111"; --d1(00)--Displays 0
-	elsif Selected_dice_output = "111" then Display_7seg_LED <= "00000000"; --Blank (Not used)
+	   if Selected_dice_output = "000" then Display_7seg_LED <= "10011001"; --d4	--Displays 4
+	elsif Selected_dice_output = "001" then Display_7seg_LED <= "10000010"; --d6	--Displays 6
+	elsif Selected_dice_output = "010" then Display_7seg_LED <= "10000000";	--d8	--Displays 8
+	elsif Selected_dice_output = "011" then Display_7seg_LED <= "11000000";	--d10	--Displays 0
+	elsif Selected_dice_output = "100" then Display_7seg_LED <= "10100100"; --d12	--Displays 2
+	elsif Selected_dice_output = "101" then Display_7seg_LED <= "11000000";	--d20	--Displays 0
+	elsif Selected_dice_output = "110" then Display_7seg_LED <= "11000000";	--d1(00)--Displays 0
+	elsif Selected_dice_output = "111" then Display_7seg_LED <= "11111111";	--Blank (Not used)
 	end if;
 ---------------------------------------------------------------------------------------------
 --7-Seg Display logic (Rolled Dice)
 --	Used to display Rolled dice result
 --	Define 7-Seg Display logic
 elsif (Enable_7seg = "0010") then 					--Displays 10s place for Rolled Dice
-	   if BCD_tens = "0000" then Display_7seg_LED <= "00111111";	--Displays 0
-	elsif BCD_tens = "0001" then Display_7seg_LED <= "00000110";	--Displays 1
-	elsif BCD_tens = "0010" then Display_7seg_LED <= "01011011";    --Displays 2 
-	elsif BCD_tens = "0011" then Display_7seg_LED <= "01001111"; 	--Displays 3 
-	elsif BCD_tens = "0100" then Display_7seg_LED <= "01100110"; 	--Displays 4 
-	elsif BCD_tens = "0101" then Display_7seg_LED <= "01101101"; 	--Displays 5 
-	elsif BCD_tens = "0110" then Display_7seg_LED <= "01111101"; 	--Displays 6 
-	elsif BCD_tens = "0111" then Display_7seg_LED <= "00000111"; 	--Displays 7 
-	elsif BCD_tens = "1000" then Display_7seg_LED <= "01111111";	--Displays 8     
-	elsif BCD_tens = "1001" then Display_7seg_LED <= "01101111"; 	--Displays 9
+	   if BCD_tens = "0000" then Display_7seg_LED <= "11000000";	--Displays 0
+	elsif BCD_tens = "0001" then Display_7seg_LED <= "11111001";    --Displays 1
+	elsif BCD_tens = "0010" then Display_7seg_LED <= "10100100"; 	--Displays 2 
+	elsif BCD_tens = "0011" then Display_7seg_LED <= "10110000"; 	--Displays 3 
+	elsif BCD_tens = "0100" then Display_7seg_LED <= "10011001"; 	--Displays 4 
+	elsif BCD_tens = "0101" then Display_7seg_LED <= "10010010"; 	--Displays 5 
+	elsif BCD_tens = "0110" then Display_7seg_LED <= "10000010"; 	--Displays 6 
+	elsif BCD_tens = "0111" then Display_7seg_LED <= "11111000"; 	--Displays 7 
+	elsif BCD_tens = "1000" then Display_7seg_LED <= "10000000";	--Displays 8     
+	elsif BCD_tens = "1001" then Display_7seg_LED <= "10010000"; 	--Displays 9
 	end if;
 
 elsif (Enable_7seg = "0001") then 					--Displays 1s place for Rolled Dice
 	   if BCD_ones = "0000" then Display_7seg_LED <= "11000000";	--Displays 0
-	elsif BCD_ones = "0001" then Display_7seg_LED <= "00000110";    --Displays 1
-	elsif BCD_ones = "0010" then Display_7seg_LED <= "01011011";    --Displays 2 
-	elsif BCD_ones = "0011" then Display_7seg_LED <= "01001111"; 	--Displays 3 
-	elsif BCD_ones = "0100" then Display_7seg_LED <= "01100110"; 	--Displays 4 
-	elsif BCD_ones = "0101" then Display_7seg_LED <= "01101101"; 	--Displays 5 
-	elsif BCD_ones = "0110" then Display_7seg_LED <= "01111101"; 	--Displays 6 
-	elsif BCD_ones = "0111" then Display_7seg_LED <= "00000111"; 	--Displays 7 
-	elsif BCD_ones = "1000" then Display_7seg_LED <= "01111111";	--Displays 8     
-	elsif BCD_ones = "1001" then Display_7seg_LED <= "01101111";    --Displays 9
+	elsif BCD_ones = "0001" then Display_7seg_LED <= "11111001";    --Displays 1
+	elsif BCD_ones = "0010" then Display_7seg_LED <= "10100100"; 	--Displays 2 
+	elsif BCD_ones = "0011" then Display_7seg_LED <= "10110000"; 	--Displays 3 
+	elsif BCD_ones = "0100" then Display_7seg_LED <= "10011001"; 	--Displays 4 
+	elsif BCD_ones = "0101" then Display_7seg_LED <= "10010010"; 	--Displays 5 
+	elsif BCD_ones = "0110" then Display_7seg_LED <= "10000010"; 	--Displays 6 
+	elsif BCD_ones = "0111" then Display_7seg_LED <= "11111000"; 	--Displays 7 
+	elsif BCD_ones = "1000" then Display_7seg_LED <= "10000000";	--Displays 8     
+	elsif BCD_ones = "1001" then Display_7seg_LED <= "10010000"; 	--Displays 9
 	end if;
 end if;
 end process;
