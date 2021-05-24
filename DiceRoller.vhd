@@ -23,7 +23,7 @@ entity LFSRDiceRoller is
 port (	sysClk : in std_logic; 					--12Mhz System Clock
 	Reset : inout std_logic; 				--Used for 7-seg display driver logic
 	Dice_LED : inout std_logic_vector (6 downto 0); --Used to represent currently selected dice
-	Roll_Button,Select_Button,Clear_Button : in std_logic;	--User input buttons	
+	Roll_Button, Select_Button : in std_logic;	--User input buttons	
 	Display_7seg_LED : out std_logic_vector (7 downto 0);	--For each 7-seg display LED
 	Enable_7seg : inout std_logic_vector(3 downto 0)	--Shift Register to enable 7-Seg Displays
       );
@@ -51,10 +51,8 @@ signal Debounce_clk : std_logic := '0';
 --For Debounce Logic
 signal Roll_button_debounced : std_logic;	--Single pulse for Roll button
 signal Select_button_debounced : std_logic;	--Single pulse for Select button
-signal Clear_button_debounced : std_logic;	--Single pulse for Clear button
 signal RB_debounce_1, RB_debounce_2, RB_debounce_3 : std_logic;	--Shift Registers for Roll debounce
 signal SB_debounce_1, SB_debounce_2, SB_debounce_3 : std_logic;	--Shift Registers for Select debounce
-signal CB_debounce_1, CB_debounce_2, CB_debounce_3 : std_logic;	--Shift Registers for Clear debounce
 
 --7-Seg Display clock pre-scaler
 signal Display_clk_prescaler : std_logic_vector (13 downto 0) := "11101010011000";
@@ -173,16 +171,11 @@ if rising_edge(Debounce_clk) then
 	SB_debounce_1 <= Select_button;
 	SB_debounce_2 <= SB_debounce_1; 
 	SB_debounce_3 <= SB_debounce_2;
-
-	CB_debounce_1 <= Clear_button;
-	CB_debounce_2 <= CB_debounce_1; 
-	CB_debounce_3 <= CB_debounce_2;
 end if;
 end process;
 --Single pulse sampling the first two blocks of the shift register. Once the third block goes high the pulse goes low.
 Roll_button_debounced <= RB_debounce_1 and RB_debounce_2 and not RB_debounce_3;
 Select_button_debounced <= SB_debounce_1 and SB_debounce_2 and not SB_debounce_3;
-Clear_button_debounced <= CB_debounce_1 and CB_debounce_2 and not CB_debounce_3;
 ---------------------------------------------------------------------------------------------
 --Select dice button (Cycles through dice)
 --	Used to select through dice (d4, d6, d8, d10, d12, d20, d100)
