@@ -193,8 +193,8 @@ diceSelect: process (Debounce_clk, Select_button_debounced)
 begin
 
 if rising_edge (Debounce_clk) then
-	if (Selected_dice_current = '111') then
-		Selected_dice_current <= '000';
+	if (Selected_dice_current = "111") then
+		Selected_dice_current <= "000";
 	elsif (Select_button_debounced = '1') then
 		Selected_dice_current <= Selected_dice_current+1;
 	end if;
