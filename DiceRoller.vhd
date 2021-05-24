@@ -143,7 +143,7 @@ if rising_edge(sysClk) then
 	end if;
 end if;
 end process;
-	
+---------------------------------------------------------------------------------------------	
 --Enables the 7-seg Displays
 Display_en: process (Display_clk, Reset)
 begin
@@ -180,8 +180,8 @@ Select_button_debounced <= SB_debounce_1 and SB_debounce_2 and not SB_debounce_3
 --Select dice button (Cycles through dice)
 --	Used to select through dice (d4, d6, d8, d10, d12, d20, d100)
 --	Takes pulse from Select dice button and changes selected dice
---	Interects with 7-seg display to output selected dice
---	Interects with Filter for Valid Numbers to change parameters
+--	Interacts with 7-seg display to output selected dice
+--	Interacts with Filter for Valid Numbers to change parameters
 diceSelect: process (Debounce_clk, Select_button_debounced)
 begin
 
@@ -218,7 +218,7 @@ filter: process (LFSR_clk, LFSR_output, Selected_dice_output)
 LFSR_output_in <= LFSR_output;
 Selected_dice_output_in <= Selected_dice_output;
 
-if rising_edge (LFSR_clk) then
+if (LFSR_clk = '1' and LFSR_clk'event) then
 
 --Valid d4 numbers
 if (Selected_dice_output_in = "000") then
@@ -322,7 +322,7 @@ NummberPool: process(LFSR_clk, Roll_button_debounced, Selected_dice_output, dice
 	     begin
 Selected_dice_output_pool <= Selected_dice_output;
 
-if rising_edge(LFSR_clk) then
+if (LFSR_clk = '1' and LFSR_clk'event) then
 if (roll_button_debounced = '1') then
 	   if Selected_dice_output_pool = "000" then Number_pool_output <= dice_number_pool;
 	elsif Selected_dice_output_pool = "001" then Number_pool_output <= dice_number_pool;
