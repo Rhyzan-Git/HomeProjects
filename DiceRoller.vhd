@@ -20,13 +20,12 @@ use IEEE.std_logic_unsigned.all;
 
 entity LFSRDiceRoller is
 --Ports + 12Mhz system clock 
-port (sysClk : in std_logic; 					--12Mhz System Clock
-	  Reset : inout std_logic; 				--Used for 7-seg display driver logic
-	  Dice_LED : inout std_logic_vector (6 downto 0); --Used to represent currently selected dice
-	  Roll_Button,Select_Button,Clear_Button : in std_logic;	--User input buttons
-      Display_7seg_LED : out std_logic_vector (7 downto 0);	--For each 7-seg display LED
-      wtf : out std_logic_vector (3 downto 0);
-	  Enable_7seg : inout std_logic_vector(3 downto 0)	--Shift Register to enable 7-Seg Displays
+port (	sysClk : in std_logic; 					--12Mhz System Clock
+	Reset : inout std_logic; 				--Used for 7-seg display driver logic
+	Dice_LED : inout std_logic_vector (6 downto 0); --Used to represent currently selected dice
+	Roll_Button,Select_Button,Clear_Button : in std_logic;	--User input buttons	
+	Display_7seg_LED : out std_logic_vector (7 downto 0);	--For each 7-seg display LED
+	Enable_7seg : inout std_logic_vector(3 downto 0)	--Shift Register to enable 7-Seg Displays
       );
 end LFSRDiceRoller;
 
@@ -63,8 +62,8 @@ signal Display_clk_prescaler_counter : std_logic_vector (13 downto 0) := (others
 signal Display_clk : std_logic := '0';
 
 --For Dice Selection Logic
-signal Selected_dice_current, Selected_dice_next : unsigned(2 downto 0);
-signal Selected_dice_output,Selected_dice_currents : std_logic_vector(2 downto 0);
+signal Selected_dice_current : unsigned(2 downto 0);
+signal Selected_dice_output : std_logic_vector(2 downto 0);
 
 --For Filter of Valid Numbers
 signal d4_filter_output, d6_filter_output : unsigned (7 downto 0) := (others => '0');			
@@ -196,36 +195,29 @@ Clear_button_debounced <= CB_debounce_1 and CB_debounce_2 and not CB_debounce_3;
 --	Takes pulse from Select dice button and changes selected dice
 --	Interects with 7-seg display to output selected dice
 --	Interects with Filter for Valid Numbers to change parameters
-diceSelect: process (sysClk, Reset, Select_button_debounced)
+diceSelect: process (Debounce_clk, Select_button_debounced)
 begin
 
-if (Reset = '1') then
-	Selected_dice_current <= "000";
-elsif (Select_button_debounced = '1') then
-	Selected_dice_current <= Selected_dice_current+1;
+if rising_edge (Debounce_clk) then
+	if (Selected_dice_current = '111') then
+		Selected_dice_current <= '000';
+	elsif (Select_button_debounced = '1') then
+		Selected_dice_current <= Selected_dice_current+1;
+	end if;
 end if;
 
---if (Selected_dice_current = "111") then
---    Selected_dice_current <= "000";
---   elsif rising_edge(Select_button_debounced) then
---    Selected_dice_current <= Selected_dice_current + 1;
---end if;	
-
-   if Selected_dice_currents = "000" then Dice_LED <= "1000000"; --d4
-elsif Selected_dice_currents = "001" then Dice_LED <= "0100000"; --d6
-elsif Selected_dice_currents = "010" then Dice_LED <= "0010000"; --d8
-elsif Selected_dice_currents = "011" then Dice_LED <= "0001000"; --d10
-elsif Selected_dice_currents = "100" then Dice_LED <= "0000100"; --d12
-elsif Selected_dice_currents = "101" then Dice_LED <= "0000010"; --d20
-elsif Selected_dice_currents = "110" then Dice_LED <= "0000001"; --d100
-elsif Selected_dice_currents = "111" then Dice_LED <= "0000000"; --blank(not used)
+   if Selected_dice_current = "000" then Dice_LED <= "1000000"; --d4
+elsif Selected_dice_current = "001" then Dice_LED <= "0100000"; --d6
+elsif Selected_dice_current = "010" then Dice_LED <= "0010000"; --d8
+elsif Selected_dice_current = "011" then Dice_LED <= "0001000"; --d10
+elsif Selected_dice_current = "100" then Dice_LED <= "0000100"; --d12
+elsif Selected_dice_current = "101" then Dice_LED <= "0000010"; --d20
+elsif Selected_dice_current = "110" then Dice_LED <= "0000001"; --d100
+elsif Selected_dice_current = "111" then Dice_LED <= "0000000"; --blank(not used)
 end if;
+
 end process;
-Selected_dice_currents <= std_logic_vector (Selected_dice_current);
-wtf(0) <= Selected_dice_currents(0);
-wtf(1) <= Selected_dice_currents(1);
-wtf(2) <= Selected_dice_currents(2);
-wtf(3) <= Select_Button;
+
 Selected_dice_output <= std_logic_vector(Selected_dice_current);
 ---------------------------------------------------------------------------------------------
 --Filter for Valid Numbers
