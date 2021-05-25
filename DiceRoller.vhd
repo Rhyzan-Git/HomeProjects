@@ -204,16 +204,12 @@ if (LFSR_clk = '1' and LFSR_clk'event) then
 
 --Valid d4 numbers
 if (Selected_dice_output_in = "000") then
-	--Checks if first 3 bits of LFSR output is between 1 and 4
-	if (LFSR_output_in(2 downto 0)>=5                      
-    	    or LFSR_output_in(2 downto 0)=0) then
-    		dice_filter_output <= dice_filter_output;
-   	else 
-		--Saves LFSR number to filter (Only first 3 bits are important)
-    		dice_filter_output(2 downto 0) <= LFSR_output_in(2 downto 0); 
-		--fills unwanted bits with 0s	
- 		dice_filter_output(7 downto 3) <= (others =>'0'); 	
-	end if;
+	--assigns random bits from LFSR to output, adding 1 to the result
+	--fills unwanted bits with 0s
+	dice_filter_output(7 downto 2) <= (others =>'0');
+	--Saves LFSR number to filter (Only first 2 bits are important)
+	--allows for overflow in case case of "100" '4' 
+	dice_filter_output(2 downto 0) <= ('0' & LFSR_output_in(7) & LFSR_output_in(2)) + 1;     
 
 --Valid d6 numbers
 elsif (Selected_dice_output_in = "001") then
@@ -231,10 +227,11 @@ elsif (Selected_dice_output_in = "001") then
 --Valid d8 numbers
 elsif (Selected_dice_output_in = "010") then
 	--assigns random bits from LFSR to output, adding 1 to the result
-	--Saves LFSR number to filter (Only first 3 bits are important)
-	dice_filter_output(2 downto 0) <= (LFSR_output_in(4) & LFSR_output_in(0) & LFSR_output_in(6)) + 1;     
 	--fills unwanted bits with 0s
 	dice_filter_output(7 downto 3) <= (others =>'0');
+	--Saves LFSR number to filter (Only first 3 bits are important)
+    	--allows for overflow in case of "1000" '8'
+	dice_filter_output(3 downto 0) <= ('0' & LFSR_output_in(4) & LFSR_output_in(0) & LFSR_output_in(6)) + 1;     
 	       
 --Valid d10 numbers
 elsif (Selected_dice_output_in = "011") then
@@ -278,7 +275,7 @@ elsif (Selected_dice_output_in = "101") then
 --Valid d100 numbers
 elsif (Selected_dice_output_in = "110") then
 	--Checks if first 7 bits of LFSR output is between 1 and 100
-	if (LFSR_output_in(6 downto 0)=7                      
+	if (LFSR_output_in(6 downto 0)>=101                      
     	    or LFSR_output_in(6 downto 0)=0) then
     		dice_filter_output <= dice_filter_output;
     	else 
