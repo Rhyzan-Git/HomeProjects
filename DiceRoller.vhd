@@ -218,12 +218,12 @@ if (Selected_dice_output_in = "000") then
 --Valid d6 numbers
 elsif (Selected_dice_output_in = "001") then
 	--Checks if first 3 bits of LFSR output is between 1 and 6
-	if (LFSR_output_in(2 downto 0)=7                      
-   	    or LFSR_output_in(2 downto 0)=0) then
+	if (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) = 7                      
+   	    or LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) = 0) then
     		dice_filter_output <= dice_filter_output;
     	else 
 		--Saves LFSR number to filter (Only first 3 bits are important)
-    		dice_filter_output(2 downto 0) <= LFSR_output_in(2 downto 0); 
+    		dice_filter_output(2 downto 0) <= LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5); 
 		--fills unwanted bits with 0s    
 		dice_filter_output(7 downto 3) <= (others =>'0'); 		
  	end if;
