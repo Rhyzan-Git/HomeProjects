@@ -331,17 +331,6 @@ end process;
 
 Number_pool <= Number_pool_output;
 ---------------------------------------------------------------------------------------------
---Roll dice button (Hold)
---	Used to hold the current string of bits in the Random Number Pool
---	Define Roll dice button logic
-
----------------------------------------------------------------------------------------------
---Clear roll dice button (Reset)
---	Used to clear the current string of bits in the Random Number Pool
---	Used to enable the Random Number Pool to start accepting new strings of bits
---	Define Clear roll dice button logic
-
----------------------------------------------------------------------------------------------
 --Binary to BCD Converter
 --	Convers Binary output of Number Pool to BCD to be used by 7-seg Displays       	       
 BtoBCD: process (Number_pool)       
