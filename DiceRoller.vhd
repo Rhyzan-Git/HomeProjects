@@ -7,7 +7,7 @@
 --Source for 8-bit LFSR 
 --	https://www.engineersgarage.com/vhdl/feed-back-register-in-vhdl/
 --
---LFSR will be between 50% (d8) to 78% (d100) efficent at generating a random number to pass through the filter.
+--LFSR will be between 62% (d20) to 78% (d100) efficent at generating a random number to pass through the filter.
 --	With a 2khz clock that means on average a new number will be generated every 0.625ms to 1ms. 
 --
 --Binary to BCD source https://stackoverflow.com/questions/23871792/convert-8bit-binary-number-to-bcd-in-vhdl
@@ -230,16 +230,11 @@ elsif (Selected_dice_output_in = "001") then
 
 --Valid d8 numbers
 elsif (Selected_dice_output_in = "010") then
-	--Checks if first 4 bits of LFSR output is between 1 and 8
-	if (LFSR_output_in(3 downto 0)>=9                      
-    	    or LFSR_output_in(3 downto 0)=0) then
-    		dice_filter_output <= dice_filter_output;
-    	else 
-		--Saves LFSR number to filter (Only first 4 bits are important)
-    		dice_filter_output(3 downto 0) <= LFSR_output_in(3 downto 0);     
-		--fills unwanted bits with 0s
-		dice_filter_output(7 downto 4) <= (others =>'0'); 		
- 	end if;
+	--assigns random bits from LFSR to output, adding 1 to the result
+	--Saves LFSR number to filter (Only first 3 bits are important)
+	dice_filter_output(2 downto 0) <= (LFSR_output_in(4) & LFSR_output_in(0) & LFSR_output_in(6)) + "001";     
+	--fills unwanted bits with 0s
+	dice_filter_output(7 downto 3) <= (others =>'0');
 	       
 --Valid d10 numbers
 elsif (Selected_dice_output_in = "011") then
