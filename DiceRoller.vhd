@@ -33,14 +33,18 @@ architecture LFSRDiceRoller_behavioral of LFSRDiceRoller is
 --Signals
 
 --LFSR clock pre-scaler
-signal LFSR_clk_prescaler : std_logic_vector (11 downto 0) := "101110111000";
-signal LFSR_clk_prescaler_counter : std_logic_vector (11 downto 0) := (others => '0');
+--120khz Clock
+signal LFSR_clk_prescaler : std_logic_vector (5 downto 0) := "110010";
+signal LFSR_clk_prescaler_counter : std_logic_vector (5 downto 0) := (others => '0');
+--2khz Clock
+--signal LFSR_clk_prescaler : std_logic_vector (11 downto 0) := "101110111000";
+--signal LFSR_clk_prescaler_counter : std_logic_vector (11 downto 0) := (others => '0');
 signal LFSR_clk : std_logic := '0';
 
 --For LFSR Logic
 signal LFSR_output: unsigned (7 DOWNTO 0);			--LFSR output signal (8-bits)		
-signal LFSR_current_state : unsigned (7 downto 0) := "00000001";
-signal LFSR_next_state: unsigned (7 DOWNTO 0);	--LFSR states
+signal LFSR_current_state : unsigned (7 downto 0) := "01011001";--Seemingly random initial condition
+signal LFSR_next_state: unsigned (7 DOWNTO 0);			--LFSR states
 signal LFSR_feedback: std_logic;				--LFSR XOR Feedback loop
 	
 --Debounce clock pre-scaler
