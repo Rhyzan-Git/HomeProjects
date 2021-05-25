@@ -20,12 +20,11 @@ use IEEE.std_logic_unsigned.all;
 
 entity LFSRDiceRoller is
 --Ports + 12Mhz system clock 
-port (	sysClk : in std_logic; 					--12Mhz System Clock
-	Reset : inout std_logic; 				--Used for 7-seg display driver logic
-	Dice_LED : inout std_logic_vector (6 downto 0); --Used to represent currently selected dice
-	Roll_Button, Select_Button : in std_logic;	--User input buttons	
-	Display_7seg_LED : out std_logic_vector (7 downto 0);	--For each 7-seg display LED
-	Enable_7seg : inout std_logic_vector(3 downto 0)	--Shift Register to enable 7-Seg Displays
+port ( sysClk : in std_logic; 					--12Mhz System Clock
+	   Dice_LED : inout std_logic_vector (6 downto 0); --Used to represent currently selected dice
+	   Roll_Button, Select_Button : in std_logic;	--User input buttons	
+	   Display_7seg_LED : out std_logic_vector (7 downto 0);	--For each 7-seg display LED
+	   Enable_7seg : inout std_logic_vector(3 downto 0)	--Shift Register to enable 7-Seg Displays
       );
 end LFSRDiceRoller;
 
@@ -35,12 +34,15 @@ architecture LFSRDiceRoller_behavioral of LFSRDiceRoller is
 
 --LFSR clock pre-scaler
 signal LFSR_clk_prescaler : std_logic_vector (11 downto 0) := "101110111000";
+--signal LFSR_clk_prescaler : std_logic_vector (21 downto 0) := "1011011100011011000000";
 signal LFSR_clk_prescaler_counter : std_logic_vector (11 downto 0) := (others => '0');
+--signal LFSR_clk_prescaler_counter : std_logic_vector (21 downto 0) := (others => '0');
 signal LFSR_clk : std_logic := '0';
 
 --For LFSR Logic
 signal LFSR_output: unsigned (7 DOWNTO 0);		--LFSR output signal (8-bits)		
-signal LFSR_current_state, LFSR_next_state: unsigned (7 DOWNTO 0);	--LFSR states
+signal LFSR_current_state : unsigned (7 downto 0) := "00000001";
+signal LFSR_next_state: unsigned (7 DOWNTO 0);	--LFSR states
 signal LFSR_feedback: std_logic;				--LFSR XOR Feedback loop
 	
 --Debounce clock pre-scaler
@@ -60,8 +62,8 @@ signal Display_clk_prescaler_counter : std_logic_vector (13 downto 0) := (others
 signal Display_clk : std_logic := '0';
 
 --For Dice Selection Logic
-signal Selected_dice_current : unsigned(2 downto 0);
-signal Selected_dice_output : std_logic_vector(2 downto 0);
+signal Selected_dice_output, Selected_dice_output_in : std_logic_vector(2 downto 0);
+signal Selected_dice_current, Selected_dice_output_pool : std_logic_vector (2 downto 0);
 
 --For Filter of Valid Numbers
 signal dice_filter_output, LFSR_output_in: unsigned (7 downto 0) := (others => '0');							
@@ -69,13 +71,13 @@ signal Select_dice_output_in : unsigned (2 downto 0) := (others => '0');
 signal dice_number_pool : std_logic_vector (7 downto 0) := (others => '0');
 
 --For Random Number Pool logic
-signal Number_pool_output : std_logic_vector(7 downto 0);
+signal Number_pool, Number_pool_output : std_logic_vector(7 downto 0);
 
 --For Binary to BCD Converter
 signal BCD_ones, BCD_tens, BDC_hunds : std_logic_vector (3 downto 0);   --BCD output 7-seg display, rolled dice	
 
 --For 7-seg Display shift Reg
-signal Enable_7seg_select : std_logic_vector (3 downto 0);
+signal Enable_7seg_select : std_logic_vector (3 downto 0) := "1110";
 
 begin	   
 
@@ -98,11 +100,9 @@ end process;
 --Generates a random string of bits on a fast clock
 --Constantly running and passing strings of bits into Filter for Valid Numbers
 --LFSR State machine	
-LFSR_gen: process (LFSR_clk, Reset)
+LFSR_gen: process (LFSR_clk)
 begin
-	if (Reset = '1') then
-		LFSR_current_state <= (0 => '1', others =>'0');
-    	elsif (LFSR_clk = '1' and LFSR_clk'event) then
+    if (LFSR_clk = '1' and LFSR_clk'event) then
 	       LFSR_current_state <= LFSR_next_state;
    	end if;
 end process;
@@ -114,7 +114,7 @@ LFSR_feedback <= LFSR_current_state(4) XOR LFSR_current_state(3) XOR LFSR_curren
 LFSR_next_state <= LFSR_feedback & LFSR_current_state(7 DOWNTO 1);							
 
 --Outputs current psuedorandom number
-LFSR_output <= LFSR_current_state;											
+LFSR_output <= LFSR_current_state;
 ---------------------------------------------------------------------------------------------
 --Debounce clock
 --Generates a 100hz clock from the 12Mhz system clock
@@ -145,23 +145,21 @@ end if;
 end process;
 ---------------------------------------------------------------------------------------------	
 --Enables the 7-seg Displays
-Display_en: process (Display_clk, Reset)
+Display_en: process (Display_clk)
 begin
-if (Reset = '1') then
-	Enable_7seg_select <= "0001";
-elsif (rising_edge(Display_clk)) then
+if rising_edge(Display_clk) then
 	Enable_7seg_select(1) <= Enable_7seg_select(0); 
 	Enable_7seg_select(2) <= Enable_7seg_select(1); 
 	Enable_7seg_select(3) <= Enable_7seg_select(2); 
 	Enable_7seg_select(0) <= Enable_7seg_select(3);	
 end if;
+Enable_7seg <= Enable_7seg_select;
 end process;
 
-Enable_7seg <= Enable_7seg_select;
 ---------------------------------------------------------------------------------------------
 --Debounce logic
 --Shift register to debounce Roll, Select and Clear button presses
-Debounce_sw: process (Debounce_clk, Roll_button, Select_button, Clear_button)
+Debounce_sw: process (Debounce_clk, Roll_button, Select_button)
 begin
 if rising_edge(Debounce_clk) then
 	RB_debounce_1 <= Roll_button;
@@ -184,7 +182,6 @@ Select_button_debounced <= SB_debounce_1 and SB_debounce_2 and not SB_debounce_3
 --	Interacts with Filter for Valid Numbers to change parameters
 diceSelect: process (Debounce_clk, Select_button_debounced)
 begin
-
 if rising_edge (Debounce_clk) then
 	if (Selected_dice_current = "111") then
 		Selected_dice_current <= "000";
@@ -192,20 +189,8 @@ if rising_edge (Debounce_clk) then
 		Selected_dice_current <= Selected_dice_current+1;
 	end if;
 end if;
-
-   if Selected_dice_current = "000" then Dice_LED <= "1000000"; --d4
-elsif Selected_dice_current = "001" then Dice_LED <= "0100000"; --d6
-elsif Selected_dice_current = "010" then Dice_LED <= "0010000"; --d8
-elsif Selected_dice_current = "011" then Dice_LED <= "0001000"; --d10
-elsif Selected_dice_current = "100" then Dice_LED <= "0000100"; --d12
-elsif Selected_dice_current = "101" then Dice_LED <= "0000010"; --d20
-elsif Selected_dice_current = "110" then Dice_LED <= "0000001"; --d100
-elsif Selected_dice_current = "111" then Dice_LED <= "0000000"; --blank(not used)
-end if;
-
+Selected_dice_output <= Selected_dice_current;
 end process;
-
-Selected_dice_output <= std_logic_vector(Selected_dice_current);
 ---------------------------------------------------------------------------------------------
 --Filter for Valid Numbers
 --	Observes numbers being generated by the 8-Bit LFSR and pulls valid numbers based on filter selected
@@ -266,10 +251,10 @@ elsif (Selected_dice_output_in = "011") then
     	    or LFSR_output_in(3 downto 0)=0) then
     		dice_filter_output <= dice_filter_output;
     	else 
-		--Saves LFSR number to filter (Only first 4 bits are important)
+		    --Saves LFSR number to filter (Only first 4 bits are important)
     		dice_filter_output(3 downto 0) <= LFSR_output_in(3 downto 0);   
-		--fills unwanted bits with 0s
-		dice_filter_output(7 downto 4) <= (others =>'0');   
+		    --fills unwanted bits with 0s
+		    dice_filter_output(7 downto 4) <= (others =>'0');   
  	end if;
 		
 --Valid d12 numbers
@@ -315,6 +300,13 @@ end if;
 end process;
 
 dice_number_pool <= std_logic_vector(dice_filter_output);	--assigns filtered number to output pool
+Dice_LED(0) <= dice_filter_output(0);
+Dice_LED(1) <= dice_filter_output(1);
+Dice_LED(2) <= dice_filter_output(2);
+Dice_LED(3) <= dice_filter_output(3);
+Dice_LED(4) <= dice_filter_output(4);
+Dice_LED(5) <= dice_filter_output(5);
+Dice_LED(6) <= dice_filter_output(6);
 ---------------------------------------------------------------------------------------------
 --Random Number Pool
 --	Stores strings of bits based on what is currently inside the Filter of Valid Numbers
@@ -327,8 +319,8 @@ if (roll_button_debounced = '1') then
 	   if Selected_dice_output_pool = "000" then Number_pool_output <= dice_number_pool;
 	elsif Selected_dice_output_pool = "001" then Number_pool_output <= dice_number_pool;
 	elsif Selected_dice_output_pool = "010" then Number_pool_output <= dice_number_pool;
-	elsif Selected_dice_output_pool = "111" then Number_pool_output <= dice_number_pool;
-	elsif Selected_dice_output_pool = "101" then Number_pool_output <= dice_number_pool;
+	elsif Selected_dice_output_pool = "011" then Number_pool_output <= dice_number_pool;
+	elsif Selected_dice_output_pool = "100" then Number_pool_output <= dice_number_pool;
 	elsif Selected_dice_output_pool = "101" then Number_pool_output <= dice_number_pool;
 	elsif Selected_dice_output_pool = "110" then Number_pool_output <= dice_number_pool;
 	elsif Selected_dice_output_pool = "111" then Number_pool_output <= "00000000";
@@ -384,7 +376,7 @@ end process;
 --	Used to display currently selected dice
 segDisp: process (Enable_7seg, selected_dice_output, BCD_ones, BCD_tens)
 begin
-if (Enable_7seg = "1000") then 						--Displays 10s place for Selected dice
+if (Enable_7seg = "0111") then 						--Displays 10s place for Selected dice
 	   if Selected_dice_output = "000" then Display_7seg_LED <= "11111111";	--d4	--Displays Blank
 	elsif Selected_dice_output = "001" then Display_7seg_LED <= "11111111";	--d6	--Displays Blank
 	elsif Selected_dice_output = "010" then Display_7seg_LED <= "11111111";	--d8	--Displays Blank
@@ -395,7 +387,7 @@ if (Enable_7seg = "1000") then 						--Displays 10s place for Selected dice
 	elsif Selected_dice_output = "111" then Display_7seg_LED <= "11111111";	--Blank (Not used)
 	end if;
 	       
-elsif (Enable_7seg = "0100") then 						--Displays 1s place for Selected Dice
+elsif (Enable_7seg = "1011") then 						--Displays 1s place for Selected Dice
 	   if Selected_dice_output = "000" then Display_7seg_LED <= "10011001"; --d4	--Displays 4
 	elsif Selected_dice_output = "001" then Display_7seg_LED <= "10000010"; --d6	--Displays 6
 	elsif Selected_dice_output = "010" then Display_7seg_LED <= "10000000";	--d8	--Displays 8
@@ -409,7 +401,7 @@ elsif (Enable_7seg = "0100") then 						--Displays 1s place for Selected Dice
 --7-Seg Display logic (Rolled Dice)
 --	Used to display Rolled dice result
 --	Define 7-Seg Display logic
-elsif (Enable_7seg = "0010") then 					--Displays 10s place for Rolled Dice
+elsif (Enable_7seg = "1101") then 					--Displays 10s place for Rolled Dice
 	   if BCD_tens = "0000" then Display_7seg_LED <= "11000000";	--Displays 0
 	elsif BCD_tens = "0001" then Display_7seg_LED <= "11111001";    --Displays 1
 	elsif BCD_tens = "0010" then Display_7seg_LED <= "10100100"; 	--Displays 2 
@@ -422,7 +414,7 @@ elsif (Enable_7seg = "0010") then 					--Displays 10s place for Rolled Dice
 	elsif BCD_tens = "1001" then Display_7seg_LED <= "10010000"; 	--Displays 9
 	end if;
 
-elsif (Enable_7seg = "0001") then 					--Displays 1s place for Rolled Dice
+elsif (Enable_7seg = "1110") then 					--Displays 1s place for Rolled Dice
 	   if BCD_ones = "0000" then Display_7seg_LED <= "11000000";	--Displays 0
 	elsif BCD_ones = "0001" then Display_7seg_LED <= "11111001";    --Displays 1
 	elsif BCD_ones = "0010" then Display_7seg_LED <= "10100100"; 	--Displays 2 
