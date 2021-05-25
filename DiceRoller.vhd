@@ -243,34 +243,38 @@ elsif (Selected_dice_output_in = "010") then
 --Valid d10 numbers
 elsif (Selected_dice_output_in = "011") then
 		--Ignores case of '0' output
-	   if LFSR_output_in(4 downto 1)=0 then
+LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1)
+	   if (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1))=0 then
 		dice_filter_output <= dice_filter_output;
     		--Case is new number is greater than 11, fills 3-7
-    	elsif (LFSR_output_in(4 downto 1)>=11 & LFSR_output_in(0) = '1' then
+    	elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1))>=11 
+		& LFSR_output_in(0) = '1' then
 	       --Takes input that is greater than 11, lops off 4th bit and replaces with 0
-	       	dice_filter_output(2 downto 0) <= LFSR_output_in(3 downto 1)
+	       	dice_filter_output(2 downto 0) <= (LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1));
 		dice_filter_output(7 downto 3) <= (others =>'0');
 	       --case is new number is greater than 11, fills 1-2 & 8-10
-	elsif (LFSR_output_in(4 downto 1)>=11 & LFSR_output_in(0) = '0' then
-		   if LFSR_output_in(4 downto 1) = "1011" then 	 --if case 11
+	elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1))>=11 
+		& LFSR_output_in(0) = '0' then
+		   if (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1)) = "1011" then 	 --if case 11
 	       		dice_filter_output(3 downto 0) <= "0001" --sends 1
 			dice_filter_output(7 downto 4) <= (others =>'0');
-		elsif LFSR_output_in(4 downto 1) = "1100" then	 --if case 12
+		elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1)) = "1100" then	 --if case 12
 	    	       	dice_filter_output(3 downto 0) <= "0010" --sends 2
 			dice_filter_output(7 downto 4) <= (others =>'0');
-		elsif LFSR_output_in(4 downto 1) = "1101" then	 --if case 13
+		elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1)) = "1101" then	 --if case 13
 	    	       	dice_filter_output(3 downto 0) <= "1000" --sends 8
 			dice_filter_output(7 downto 4) <= (others =>'0');
-		elsif LFSR_output_in(4 downto 1) = "1110" then	 --if case 14
+		elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1)) = "1110" then	 --if case 14
 	    	       	dice_filter_output(3 downto 0) <= "1001" --sends 9
 			dice_filter_output(7 downto 4) <= (others =>'0');
-		elsif LFSR_output_in(4 downto 1) = "1111" then	 --if case 15
+		elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1)) = "1111" then	 --if case 15
 	    	       	dice_filter_output(3 downto 0) <= "1010" --sends 10
 			dice_filter_output(7 downto 4) <= (others =>'0');
 		end if;
-	elsif (LFSR_output_in(4 downto 1)>=1 & LFSR_output_in(4 downto 1)<=10 then	    
+	elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1))>=1 
+	       & (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1))<=10 then	    
 		--Saves LFSR number to filter (Only first 4 bits are important)
-    		dice_filter_output(3 downto 0) <= LFSR_output_in(3 downto 0);   
+    		dice_filter_output(3 downto 0) <= (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1));   
 		--fills unwanted bits with 0s
 		dice_filter_output(7 downto 4) <= (others =>'0');   
  	end if;
