@@ -232,7 +232,7 @@ elsif (Selected_dice_output_in = "001") then
 elsif (Selected_dice_output_in = "010") then
 	--assigns random bits from LFSR to output, adding 1 to the result
 	--Saves LFSR number to filter (Only first 3 bits are important)
-	dice_filter_output(2 downto 0) <= (LFSR_output_in(4) & LFSR_output_in(0) & LFSR_output_in(6)) + "001";     
+	dice_filter_output(2 downto 0) <= (LFSR_output_in(4) & LFSR_output_in(0) & LFSR_output_in(6)) + 1;     
 	--fills unwanted bits with 0s
 	dice_filter_output(7 downto 3) <= (others =>'0');
 	       
