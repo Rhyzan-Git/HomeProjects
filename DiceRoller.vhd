@@ -243,7 +243,6 @@ elsif (Selected_dice_output_in = "010") then
 --Valid d10 numbers
 elsif (Selected_dice_output_in = "011") then
 		--Ignores case of '0' output
-LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1)
 	   if (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1))=0 then
 		dice_filter_output <= dice_filter_output;
     		--Case is new number is greater than 11, fills 3-7
