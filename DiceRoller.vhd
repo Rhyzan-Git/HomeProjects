@@ -34,14 +34,14 @@ architecture LFSRDiceRoller_behavioral of LFSRDiceRoller is
 
 --LFSR clock pre-scaler
 --120khz Clock
---signal LFSR_clk_prescaler : std_logic_vector (5 downto 0) := "110010";
---signal LFSR_clk_prescaler_counter : std_logic_vector (5 downto 0) := (others => '0');
+signal LFSR_clk_prescaler : std_logic_vector (5 downto 0) := "110010";
+signal LFSR_clk_prescaler_counter : std_logic_vector (5 downto 0) := (others => '0');
 --2khz Clock
 --signal LFSR_clk_prescaler : std_logic_vector (11 downto 0) := "101110111000";
 --signal LFSR_clk_prescaler_counter : std_logic_vector (11 downto 0) := (others => '0');
 --2hz Clock
-signal LFSR_clk_prescaler : std_logic_vector (21 downto 0) := "1011011100011011000000";
-signal LFSR_clk_prescaler_counter : std_logic_vector (21 downto 0) := (others => '0');
+--signal LFSR_clk_prescaler : std_logic_vector (21 downto 0) := "1011011100011011000000";
+--signal LFSR_clk_prescaler_counter : std_logic_vector (21 downto 0) := (others => '0');
 signal LFSR_clk : std_logic := '0';
 
 --For LFSR Logic
@@ -216,17 +216,16 @@ if (Selected_dice_output_in = "000") then
 	dice_filter_output(7 downto 2) <= (others =>'0');
 	--Saves LFSR number to filter (Only first 2 bits are important)
 	--allows for overflow in case case of "100" '4' 
-	dice_filter_output(2 downto 0) <= ('0' & LFSR_output_in(7) & LFSR_output_in(2)) + 1;     
+	dice_filter_output(2 downto 0) <= ('0' & LFSR_output_in(7 downto 6)) + 1;     
 
 --Valid d6 numbers
 elsif (Selected_dice_output_in = "001") then
 	--Checks if first 3 bits of LFSR output is between 1 and 6
-	if (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) = 7                      
-   	    or LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) = 0) then
+	if (LFSR_output_in(4 downto 2) = 7 or LFSR_output_in(4 downto 2) = 0) then
     		dice_filter_output <= dice_filter_output;
     	else 
 		--Saves LFSR number to filter (Only first 3 bits are important)
-    		dice_filter_output(2 downto 0) <= LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5); 
+    		dice_filter_output(2 downto 0) <= LFSR_output_in(4 downto 2); 
 		--fills unwanted bits with 0s    
 		dice_filter_output(7 downto 3) <= (others =>'0'); 		
  	end if;
@@ -243,39 +242,38 @@ elsif (Selected_dice_output_in = "010") then
 --Valid d10 numbers
 elsif (Selected_dice_output_in = "011") then
 		--Ignores case of '0' output
-	   if (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1))=0 then
-		dice_filter_output <= dice_filter_output;
-    		--Case is new number is greater than 11, fills 3-7
-    	elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1))>=11 
-		& LFSR_output_in(0) = '1' then
-	       --Takes input that is greater than 11, lops off 4th bit and replaces with 0
-	       	dice_filter_output(2 downto 0) <= (LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1));
-		dice_filter_output(7 downto 3) <= (others =>'0');
-	       --case is new number is greater than 11, fills 1-2 & 8-10
-	elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1))>=11 
-		& LFSR_output_in(0) = '0' then
-		   if (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1)) = "1011" then 	 --if case 11
-	       		dice_filter_output(3 downto 0) <= "0001" --sends 1
-			dice_filter_output(7 downto 4) <= (others =>'0');
-		elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1)) = "1100" then	 --if case 12
-	    	       	dice_filter_output(3 downto 0) <= "0010" --sends 2
-			dice_filter_output(7 downto 4) <= (others =>'0');
-		elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1)) = "1101" then	 --if case 13
-	    	       	dice_filter_output(3 downto 0) <= "1000" --sends 8
-			dice_filter_output(7 downto 4) <= (others =>'0');
-		elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1)) = "1110" then	 --if case 14
-	    	       	dice_filter_output(3 downto 0) <= "1001" --sends 9
-			dice_filter_output(7 downto 4) <= (others =>'0');
-		elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1)) = "1111" then	 --if case 15
-	    	       	dice_filter_output(3 downto 0) <= "1010" --sends 10
-			dice_filter_output(7 downto 4) <= (others =>'0');
-		end if;
-	elsif (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1))>=1 
-	       & (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1))<=10 then	    
+	   if LFSR_output_in(5 downto 2)=0 then
+		       dice_filter_output <= dice_filter_output;
+	elsif LFSR_output_in(5 downto 2)<=10 then	    
 		--Saves LFSR number to filter (Only first 4 bits are important)
-    		dice_filter_output(3 downto 0) <= (LFSR_output_in(3) & LFSR_output_in(7) & LFSR_output_in(5) & LFSR_output_in(1));   
+    	dice_filter_output(3 downto 0) <= LFSR_output_in(5 downto 2);   
 		--fills unwanted bits with 0s
-		dice_filter_output(7 downto 4) <= (others =>'0');   
+		dice_filter_output(7 downto 4) <= (others =>'0');  
+    elsif LFSR_output_in(5 downto 2)>=11 then
+        --Case is new number is greater than 11, fills 3-7
+        if LFSR_output_in(0)='1' then
+	    --Takes input that is greater than 11, lops off 4th bit and replaces with 0
+	       	dice_filter_output(2 downto 0) <= LFSR_output_in(4 downto 2);
+		    dice_filter_output(7 downto 3) <= (others =>'0');
+	    --case is new number is greater than 11, fills 1-2 & 8-10
+        else
+		      if LFSR_output_in(5 downto 2)=11 then 	 --if case 11
+	       		dice_filter_output(3 downto 0) <= "0001"; --sends 1
+			    dice_filter_output(7 downto 4) <= (others =>'0');
+		  elsif LFSR_output_in(5 downto 2)=12 then	 --if case 12
+	    	    dice_filter_output(3 downto 0) <= "0010"; --sends 2
+			    dice_filter_output(7 downto 4) <= (others =>'0');
+		  elsif LFSR_output_in(5 downto 2)=13 then	 --if case 13
+	    	    dice_filter_output(3 downto 0) <= "1000"; --sends 8
+			    dice_filter_output(7 downto 4) <= (others =>'0');
+		  elsif LFSR_output_in(5 downto 2)=14 then	 --if case 14
+	    	    dice_filter_output(3 downto 0) <= "1001"; --sends 9
+                dice_filter_output(7 downto 4) <= (others =>'0');
+		  elsif LFSR_output_in(5 downto 2)=15 then	 --if case 15
+	    	    dice_filter_output(3 downto 0) <= "1010"; --sends 10
+			    dice_filter_output(7 downto 4) <= (others =>'0');
+		  end if;
+		end if; 
  	end if;
 		
 --Valid d12 numbers
@@ -321,13 +319,13 @@ end if;
 end process;
 
 dice_number_pool <= std_logic_vector(dice_filter_output);	--assigns filtered number to output pool
---Dice_LED(0) <= dice_filter_output(0);
---Dice_LED(1) <= dice_filter_output(1);
---Dice_LED(2) <= dice_filter_output(2);
---Dice_LED(3) <= dice_filter_output(3);
---Dice_LED(4) <= dice_filter_output(4);
---Dice_LED(5) <= dice_filter_output(5);
---Dice_LED(6) <= dice_filter_output(6);
+Dice_LED(0) <= dice_filter_output(0);
+Dice_LED(1) <= dice_filter_output(1);
+Dice_LED(2) <= dice_filter_output(2);
+Dice_LED(3) <= dice_filter_output(3);
+Dice_LED(4) <= dice_filter_output(4);
+Dice_LED(5) <= dice_filter_output(5);
+Dice_LED(6) <= dice_filter_output(6);
 ---------------------------------------------------------------------------------------------
 --Random Number Pool
 --	Stores strings of bits based on what is currently inside the Filter of Valid Numbers
