@@ -316,27 +316,63 @@ dice_filter_output(7 downto 4) <= (others =>'0');
 		end if;
 	end if;
 
-	--Checks if first 4 bits of LFSR output is between 1 and 12
---	if (LFSR_output_in(3 downto 0)>=13 or LFSR_output_in(3 downto 0)=0) then
---		dice_filter_output <= dice_filter_output;
---   	else 
-		--Saves LFSR number to filter (Only first 4 bits are important)
---    		dice_filter_output(3 downto 0) <= LFSR_output_in(3 downto 0);     
-		--fills unwanted bits with 0s
---		dice_filter_output(7 downto 4) <= (others =>'0'); 
--- 	end if;		
-
 --Valid d20 numbers
 elsif (Selected_dice_output_in = "101") then
-	--Checks if first 5 bits of LFSR output is between 1 and 20
-	if (LFSR_output_in(4 downto 0)>=21 or LFSR_output_in(4 downto 0)=0) then
-    		dice_filter_output <= dice_filter_output;
-    	else 
-		--Saves LFSR number to filter (Only first 5 bits are important)
-    		dice_filter_output(4 downto 0) <= LFSR_output_in(4 downto 0);     
-		--fills unwanted bits with 0s
-		dice_filter_output(7 downto 5) <= (others =>'0');
- 	end if;
+--fills unwanted bits with 0s
+dice_filter_output(7 downto 5) <= (others =>'0');
+	--Ignores case of '0' or '31' output
+	   if (LFSR_output_in(6 downto 3)=31 or (LFSR_output_in(6 downto 3)=0  then
+		dice_filter_output <= dice_filter_output;
+	elsif (LFSR_output_in(6 downto 3)<=20 then
+		--Saves LFSR number to filter (Only first 4 bits are important)
+    		dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3); 
+	elsif (LFSR_output_in(6 downto 3)>=21 then
+        	   if LFSR_output_in(7)=1 then
+			   if LFSR_output_in(6 downto 3)=21 then 	 --if case 21
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-20; --sends 1
+			elsif LFSR_output_in(6 downto 3)=22 then 	 --if case 22
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-20; --sends 2
+			elsif LFSR_output_in(6 downto 3)=23 then 	 --if case 23
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-20; --sends 3
+			elsif LFSR_output_in(6 downto 3)=24 then 	 --if case 24
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-20; --sends 4
+			elsif LFSR_output_in(6 downto 3)=25 then 	 --if case 25
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-20; --sends 5
+			elsif LFSR_output_in(6 downto 3)=26 then 	 --if case 26
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-20; --sends 6
+			elsif LFSR_output_in(6 downto 3)=27 then 	 --if case 27
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-20; --sends 7
+			elsif LFSR_output_in(6 downto 3)=28 then 	 --if case 28
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-20; --sends 8
+			elsif LFSR_output_in(6 downto 3)=29 then 	 --if case 29
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-20; --sends 9
+			elsif LFSR_output_in(6 downto 3)=30 then 	 --if case 30
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-20; --sends 10
+			end if;
+        	elsif LFSR_output_in(7)=0 then
+			   if LFSR_output_in(6 downto 3)=21 then 	 --if case 21
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-10; --sends 11
+			elsif LFSR_output_in(6 downto 3)=22 then 	 --if case 22
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-10; --sends 12
+			elsif LFSR_output_in(6 downto 3)=23 then 	 --if case 23
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-10; --sends 13
+			elsif LFSR_output_in(6 downto 3)=24 then 	 --if case 24
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-10; --sends 14
+			elsif LFSR_output_in(6 downto 3)=25 then 	 --if case 25
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-10; --sends 15
+			elsif LFSR_output_in(6 downto 3)=26 then 	 --if case 26
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-10; --sends 16
+			elsif LFSR_output_in(6 downto 3)=27 then 	 --if case 27
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-10; --sends 17
+			elsif LFSR_output_in(6 downto 3)=28 then 	 --if case 28
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-10; --sends 18
+			elsif LFSR_output_in(6 downto 3)=29 then 	 --if case 29
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-10; --sends 19
+			elsif LFSR_output_in(6 downto 3)=30 then 	 --if case 30
+	       			dice_filter_output(4 downto 0) <= LFSR_output_in(6 downto 3)-10; --sends 20
+			end if;
+		end if;
+	end if;
 
 --Valid d100 numbers
 elsif (Selected_dice_output_in = "110") then
