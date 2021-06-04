@@ -14,11 +14,13 @@
 ---------------------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.ALL;
+use IEEE.numeric_std.all;
+use IEEE.std_logic_unsigned.all;
 
 entity WatchDogTimer is
 --Ports 
 port (	sysClk : in std_logic;
-        deadmanSwitch : in std_logic
+        deadmanSwitch : in std_logic;
         shutdownLED, restartLED : out std_logic
       );
 end WatchDogTimer;
