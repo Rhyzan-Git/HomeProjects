@@ -52,10 +52,11 @@ begin
 
 if (deadmanSwitch_debounced = '1') then  
   wd_clk_prescaler_counter <= (others => '0'); --Reset condition
+  wd_clk <= '0';
   elsif rising_edge(sysClk) then
     wd_clk_prescaler_counter <= wd_clk_prescaler_counter + 1;
     if (wd_clk_prescaler_counter > wd_clk_prescaler) then 
-      wd_clk <= not wd_clk;
+      wd_clk <= '1';
     end if;
 end if;	
 end process;
