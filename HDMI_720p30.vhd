@@ -1,4 +1,10 @@
 --Notes:
+--Liekly not possible with cmod s7 board. Tested external signal of 150Mhz 
+--and the output is a 150Mhz sine wave between 1.6v and 2.3v. Not a usable signal.
+--Tested with logic using the 15Mhz and 150Mhz signal and got similar results.
+--The 15Mhz signal output is valid, where as the 150Mhz signal peaks at 2v on a 3.3v signal
+
+
 --HDMI TMDS uses 3.3v signals
 --Test output freq with MMCM or PLL, scope has a max of 200Mhz, try and generate a 100MHZ diff signal on ioPins
   --Pixel Clock - 37.125Mhz - Need to make use of PLL
