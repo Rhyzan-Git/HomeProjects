@@ -44,15 +44,16 @@ signal wd_clk : std_logic := '0';
 begin
 
 ---------------------------------------------------------------------------------------------
---Watchdog clock
+--Watchdog clock+timer
 --Generates a 0.25hz clock from the 12Mhz system clock
 --Used as the clock for shutdown signal
 WatchTimer: process (sysClk, deadmanSwitch_debounced)
 begin
-
+--Holds timer and shutdown signal at 0 while restart is held at 1
 if (deadmanSwitch_debounced = '1') then  
   wd_clk_prescaler_counter <= (others => '0'); --Reset condition
   wd_clk <= '0';
+  --Oce restart is 0 timer starts counting, takes 4 seconds to trigger shutdown signal
   elsif rising_edge(sysClk) then
     wd_clk_prescaler_counter <= wd_clk_prescaler_counter + 1;
     if (wd_clk_prescaler_counter > wd_clk_prescaler) then 
@@ -60,8 +61,9 @@ if (deadmanSwitch_debounced = '1') then
     end if;
 end if;	
 end process;
-
-shutdownLED <= not wd_clk; 
+--Represents if shutdown is disabled
+shutdownLED <= not wd_clk;
+--Represents if restart is enabled
 restartLED <= deadmanSwitch_Debounced;   
 ---------------------------------------------------------------------------------------------
 --Debounce clock
