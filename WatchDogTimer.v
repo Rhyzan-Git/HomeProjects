@@ -82,12 +82,11 @@ module WatchDogTimer_tb ();
     reg r_wd_in = 1'b0 ;     //Input signal from motor
     reg r_wd_out = 1'b0 ;     //Output signal to trigger shutdown
   
-  WatchdogTimer ()
-      (
+  WatchDogTimer UUT(
         .clk_1khz(r_clk_1khz),
         .wd_in(r_wd_in),
-        .wd_out(r_wd_out)
-      );
+        .wd_out(r_wd_out));
+  
   always @(*) begin
       #10 r_clk_1khz <= ~r_clk_1khz;
       #250 r_wd_in <= ~r_wd_in;
