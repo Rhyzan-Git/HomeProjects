@@ -1,4 +1,4 @@
-//`timescale 1ns / 1ps
+
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -73,3 +73,23 @@ assign wd_out = wd_shtdwn;
 
 end 
 endmodule
+
+//Testbench code for WatchDogTimer
+`timescale 100us / 10us
+
+module WatchDogTimer_tb ();
+    reg r_clk_1khz = 1'b0 ;  //1khz clock running inside the system
+    reg r_wd_in = 1'b0 ;     //Input signal from motor
+    reg r_wd_out = 1'b0 ;     //Output signal to trigger shutdown
+  
+  WatchdogTimer ()
+      (
+        .clk_1khz(r_clk_1khz),
+        .wd_in(r_wd_in),
+        .wd_out(r_wd_out)
+      );
+  always @(*) begin
+      #10 r_clk_1khz <= ~r_clk_1khz;
+      #250 r_wd_in <= ~r_wd_in;
+  end
+endmodule  
