@@ -64,7 +64,8 @@ assign  edge_detect = wd_in ^ wd_in_Q;
           if (edge_detect == "1") begin
                 wd_shtdwn <= "0";
                 r_shtdwn_cnt <= 0;
-          end else
+          end 
+          else
           r_shtdwn_cnt <= r_shtdwn_cnt + 1;      
       end   
    end   
