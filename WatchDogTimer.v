@@ -1,20 +1,18 @@
-/*
-Notes: 
-//Written in Verilog
-//Shutdown triggers 1/8th of a second after not seeing restart pulse
-/working with 1khz clock
+/* Notes: 
+Written in Verilog
+Shutdown triggers 1/8th of a second after not seeing restart pulse
+working with 1khz clock
 restart must trigger on rising edge of pulse
 */
 
 module watchdogTimer
   (
     clk_1khz,  //assumes a 1khz clock running inside the system
-    const_clk  //assumes a costant 12Mhz system clock
     );
 
 input clk_1khz;   //1khz
-inout const_clk; //12Mhz
-output shutdown;
+input wd_in;
+output wd_out;
   
 //Constants
 parameter c_clk_8hz = 750000; // uses 12Mhz clock for shutdown signal
