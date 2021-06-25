@@ -110,29 +110,8 @@ OSCInst0: OSCH
 	-- synthesis translate_on      
 		PORT MAP (STDBY=>'0',
 				  OSC=>sysClk);
-
 ---------------------------------------------------------------------------------------------
-Select_Button <= pin17;
-Roll_Button <= pin18_cs;
 
-pin1 		<= Display_7seg_LED(6);
-pin2 		<= Display_7seg_LED(5);
-pin3_sn 	<= Display_7seg_LED(4);
-pin4_mosi 	<= Display_7seg_LED(3);
-pin5 		<= Display_7seg_LED(2);
-pin8_pgmn 	<= Display_7seg_LED(1);
-pin9_jtgnb 	<= Display_7seg_LED(0);
-
-pin19_sclk 	<= Enable_7seg(0);
-pin20_miso 	<= Enable_7seg(1);
-pin21 		<= Enable_7seg(2);
-pin22 		<= Enable_7seg(3);
-
-pin6 		<= '0';
-pin7_done 	<= '0'; 
-pin10_sda 	<= '0';
-pin11_scl 	<= '0';
-pin16 		<= '0';
 ---------------------------------------------------------------------------------------------
 --LFSR clock
 --Generates a 2khz clock from the 12Mhz system clock
@@ -518,5 +497,27 @@ elsif (Enable_7seg = "1110") then 					--Displays 1s place for Rolled Dice
 	end case;
 end if;
 end process;
+
+Select_Button <= pin17;
+Roll_Button <= pin18_cs;
+
+pin1 		<= Display_7seg_LED(6);
+pin2 		<= Display_7seg_LED(5);
+pin3_sn 	<= Display_7seg_LED(4);
+pin4_mosi 	<= Display_7seg_LED(3);
+pin5 		<= Display_7seg_LED(2);
+pin8_pgmn 	<= Display_7seg_LED(1);
+pin9_jtgnb 	<= Display_7seg_LED(0);
+
+pin19_sclk 	<= Enable_7seg(0);
+pin20_miso 	<= Enable_7seg(1);
+pin21 		<= Enable_7seg(2);
+pin22 		<= Enable_7seg(3);
+
+pin6 		<= '0';
+pin7_done 	<= '0'; 
+pin10_sda 	<= '0';
+pin11_scl 	<= '0';
+pin16 		<= '0';
 ---------------------------------------------------------------------------------------------
 end LFSRDiceRoller_behavioral;
