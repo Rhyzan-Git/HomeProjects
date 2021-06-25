@@ -98,7 +98,7 @@ COMPONENT OSCH
 	-- synthesis translate_on      
 		PORT (STDBY : IN std_logic;
 			  OSC : OUT std_logic);
-END COMPONENT;     
+END COMPONENT OSCH;     
 	attribute NOM_FREQ : string;    
 	attribute NOM_FREQ of OSCinst0 : label is "12.09";
 
