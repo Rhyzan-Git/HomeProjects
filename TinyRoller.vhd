@@ -92,12 +92,12 @@ signal BCD_ones, BCD_tens, BDC_hunds : std_logic_vector (3 downto 0);   --BCD ou
 signal Enable_7seg_select : std_logic_vector (3 downto 0) := "1110";
 
 
-COMPONENT OSCH
+COMPONENT OSCH is
 	-- synthesis translate_off      
 	GENERIC  (NOM_FREQ: string := "12.09");
 	-- synthesis translate_on      
 		PORT (STDBY : IN std_logic;
-			  OSC : OUT std_logic);
+		      OSC : OUT std_logic);
 END COMPONENT OSCH;     
 	attribute NOM_FREQ : string;    
 	attribute NOM_FREQ of OSCinst0 : label is "12.09";
