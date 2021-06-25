@@ -110,7 +110,7 @@ OSCInst0: OSCH
 	-- synthesis translate_on      
 		PORT MAP (STDBY=>'0',
 				  OSC=>sysClk);
-	end process;
+
 ---------------------------------------------------------------------------------------------
 Select_Button <= pin17;
 Roll_Button <= pin18_cs;
