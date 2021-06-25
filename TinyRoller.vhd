@@ -37,6 +37,17 @@ port (	--sysClk : inout std_logic; 								--12Mhz System Clock
 end LFSRDiceRoller;
 
 architecture LFSRDiceRoller_behavioral of LFSRDiceRoller is
+	
+--For Oscillator clock
+COMPONENT OSCH is
+	-- synthesis translate_off      
+	--GENERIC  (NOM_FREQ: string := "12.09");
+	-- synthesis translate_on      
+		PORT (STDBY : IN std_logic;
+		      OSC : OUT std_logic);
+END COMPONENT OSCH;     
+	attribute NOM_FREQ : string;    
+	attribute NOM_FREQ of OSCinst0 : label is "12.09";	
 
 --Signals
 
@@ -91,7 +102,16 @@ signal BCD_ones, BCD_tens, BDC_hunds : std_logic_vector (3 downto 0);   --BCD ou
 --For 7-seg Display shift Reg
 signal Enable_7seg_select : std_logic_vector (3 downto 0) := "1110";
 
-begin
+begin	   
+	
+---------------------------------------------------------------------------------------------
+--Oscillator clock	
+OSCInst0: OSCH
+	--synthesis translate_off      
+	--GENERIC MAP( NOM_FREQ  => "12.09" )
+	--synthesis translate_on      
+		PORT MAP (STDBY=>'0',
+			  OSC=>sysClk);
 ---------------------------------------------------------------------------------------------
 --LFSR clock
 --Generates a 2khz clock from the 12Mhz system clock
