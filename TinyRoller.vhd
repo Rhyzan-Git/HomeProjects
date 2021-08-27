@@ -141,6 +141,28 @@ LFSR_next_state <= LFSR_feedback & LFSR_current_state(7 DOWNTO 1);
 --Outputs current psuedorandom number
 LFSR_output <= LFSR_current_state;
 ---------------------------------------------------------------------------------------------
+--LFSR Random Number Ganerator (8-bit) Version 2
+--Generates a random string of bits on a fast clock
+--Constantly running and passing strings of bits into Filter for Valid Numbers
+--LFSR State machine
+LFSR_gen: process (LFSR_clk)
+begin
+	if (LFSR_clk = '1' and LFSR_clk'event) then
+		LFSR_current_state <= LFSR_next_state;
+	end if;
+end process;
+
+--XOR gates in shift register
+LFRS_current_state(3) <= LFRS_current_state(0) XOR LFRS_current_state(4);
+LFRS_current_state(4) <= LFRS_current_state(0) XOR LFRS_current_state(5);
+LFRS_current_state(5) <= LFRS_current_state(0) XOR LFRS_current_state(6);
+
+--Stores new psuedorandom number
+LFSR_next_state
+
+--Outputs current psuedorandom number
+LFSR_output <= LFSR_current_state;
+---------------------------------------------------------------------------------------------	    
 --Debounce clock
 --Generates a 100hz clock from the 12Mhz system clock
 --Used as the clock for debounce shift registers
