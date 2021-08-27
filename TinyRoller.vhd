@@ -45,9 +45,10 @@ signal LFSR_clk_prescaler_counter : std_logic_vector (5 downto 0) := (others => 
 signal LFSR_clk : std_logic := '0';
 
 --For LFSR Logic
-signal LFSR_output: unsigned (7 DOWNTO 0);			--LFSR output signal (8-bits)		
-signal LFSR_current_state : unsigned (7 downto 0) := "10110010"; --Seemingly random initial condition
-signal LFSR_next_state: unsigned (7 DOWNTO 0);		--LFSR states
+signal LFSR_output: unsigned (7 DOWNTO 0);				--LFSR output signal (8-bits)		
+signal LFSR_current_state : unsigned (7 downto 0) := "10110010";	--Seemingly random initial condition
+signal LFSR_next_state: unsigned (7 DOWNTO 0);				--LFSR states
+signal LFRS_xor_state: unsigned (2 downto 0);				--LFSR feedback xor gates
 signal LFSR_feedback: std_logic;					--LFSR XOR Feedback loop
 	
 --Debounce clock pre-scaler
@@ -153,12 +154,15 @@ begin
 end process;
 
 --XOR gates in shift register
-LFRS_current_state(3) <= LFRS_current_state(0) XOR LFRS_current_state(4);
-LFRS_current_state(4) <= LFRS_current_state(0) XOR LFRS_current_state(5);
-LFRS_current_state(5) <= LFRS_current_state(0) XOR LFRS_current_state(6);
-
+--LFRS_current_state(3)
+LFRS_xor_state(0) <= LFRS_current_state(0) XOR LFRS_current_state(4);
+--LFRS_current_state(4)
+LFRS_xor_state(1) <= LFRS_current_state(0) XOR LFRS_current_state(5);
+--LFRS_current_state(5)
+LFRS_xor_state(2) <= LFRS_current_state(0) XOR LFRS_current_state(6);
+	    
 --Stores new psuedorandom number
-LFSR_next_state
+LFSR_next_state <= LFSR_current_state(0) & LFSR_current_state(7 downto 6) & LFRS_xor_state(2 downto 0) & LFSR_current_state(2 downto 1);
 
 --Outputs current psuedorandom number
 LFSR_output <= LFSR_current_state;
