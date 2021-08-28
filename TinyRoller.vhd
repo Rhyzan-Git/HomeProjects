@@ -148,24 +148,26 @@ LFSR_output <= LFSR_current_state;
 --LFSR State machine
 LFSR_gen: process (LFSR_clk)
 begin
-	if (LFSR_clk = '1' and LFSR_clk'event) then
+	--Updates current random number on high clock
+	if (LFSR_clk = '1') then
 		LFSR_current_state <= LFSR_next_state;
 	end if;
+	--Updates next random number on low clock 
+	if (LFSR_clk = '0') then
+		--Stores new psuedorandom number
+		LFSR_next_state <= (LFSR_current_state(0) & LFSR_current_state(7 downto 6) 
+							& LFSR_xor_state(2 downto 0) & LFSR_current_state(2 downto 1));
+		--XOR gates in shift register
+		--LFRS_current_state(3)
+		LFSR_xor_state(0) <= LFSR_current_state(0) XOR LFSR_current_state(4);
+		--LFRS_current_state(4)
+		LFSR_xor_state(1) <= LFSR_current_state(0) XOR LFSR_current_state(5);
+		--LFRS_current_state(5)
+		LFSR_xor_state(2) <= LFSR_current_state(0) XOR LFSR_current_state(6);
+		--Outputs current psuedorandom number
+		LFSR_output <= LFSR_current_state;
+	end if;
 end process;
-
---XOR gates in shift register
---LFRS_current_state(3)
-LFSR_xor_state(0) <= LFSR_current_state(0) XOR LFSR_current_state(4);
---LFRS_current_state(4)
-LFSR_xor_state(1) <= LFSR_current_state(0) XOR LFSR_current_state(5);
---LFRS_current_state(5)
-LFSR_xor_state(2) <= LFSR_current_state(0) XOR LFSR_current_state(6);
-	    
---Stores new psuedorandom number
-LFSR_next_state <= LFSR_current_state(0) & LFSR_current_state(7 downto 6) & LFRS_xor_state(2 downto 0) & LFSR_current_state(2 downto 1);
-
---Outputs current psuedorandom number
-LFSR_output <= LFSR_current_state;
 ---------------------------------------------------------------------------------------------	    
 --Debounce clock
 --Generates a 100hz clock from the 12Mhz system clock
