@@ -5,20 +5,15 @@
 #include <Key.h>
 #include <Keypad.h>
 
-//Functions
-
-
 //Setup
-long randNumber;
-int diceFaces = 0;
-int diceNumber = 0;
-int selectFaces = 0;
-int facesBuffer[3];
-int numberBuffer[2];
-int numberIter = 0;
-int facesIter = 0;
-
-    int numberD, numberF = 0;
+long randNumber;          //Random number rolled to be displayed
+long diceFaces = 0;        //Number of dice faces, after being converted from the array
+long diceNumber = 0;       //Number of dice, after being converted from the array  
+int selectFaces = 0;      //Indicates 'd' has been pressed and the user is inputting number of faces
+int facesArray[3];        //3 digit array for dice faces
+int numberArray[2];       //2 digit array for dice amount
+int numberIter = 1;       //Iterator for number of dice array
+int facesIter = 2;        //Iterator for number of dice faces array
 //Change Dice
 
 //Generate random number
@@ -47,17 +42,50 @@ byte colPins[COLS] = {5, 4, 3, 2};
 //Used to read key press - char customKey = customKeypad.getKey();
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
-void callBuffer(int x){
+
+//Functions
+
+//Populates the Arrays with dice amounts/faces
+void callArray(int x){
   if (selectFaces == 0){
-    numberBuffer[numberIter] = x;
-    numberIter++;
-    }
+    numberArray[1] = numberArray[0];
+    numberArray[0] = x;
+  }
     else{
-      facesBuffer[facesIter] = x;
-      facesIter++;
-      }
+    facesArray[2] = facesArray[1];
+    facesArray[1] = facesArray[0];
+    facesArray[0] = x;
+    }
   return;    
 }
+
+void callGlobalClear(){
+    diceFaces = 0;
+    diceNumber = 0;
+    selectFaces = 0;
+    numberIter = 1;
+    facesIter = 2;
+    facesArray[0] = 0;
+    facesArray[1] = 0;
+    numberArray[0] = 0;
+    numberArray[1] = 0;
+    numberArray[2] = 0;
+  return;
+}
+
+void callConvertArray(){
+  int numberD = 0;
+  int numberF = 0;
+  
+  numberD = (numberArray[1]*10) + numberArray[0];
+  diceNumber = numberD;
+  
+  numberF = (facesArray[2]*100) + (facesArray[1]*10) + facesArray[0];
+  diceFaces = numberF;
+
+  return;
+}
+
 
 void setup(){
   Serial.begin(9600);
@@ -70,108 +98,105 @@ void loop(){
 switch(customKey) {
    
   case 'A':
-    diceFaces = 20;
-    diceNumber = 1;
+    numberArray[0] = 1;
+    numberArray[1] = 0;
+    facesArray[0] = 0;
+    facesArray[1] = 2;
+    facesArray[2] = 0;
+    selectFaces == 0;
     Serial.println(customKey);
     break;
     
   case 'B':
-    diceFaces = 8;
-    diceNumber = 1;
+    numberArray[0] = 1;
+    numberArray[1] = 0;
+    facesArray[0] = 8;
+    facesArray[1] = 0;
+    facesArray[2] = 0;
+    selectFaces == 0;
     Serial.println(customKey);
     break; 
 
   case 'C':
-    diceFaces = 6;
-    diceNumber = 1;
+    numberArray[0] = 1;
+    numberArray[1] = 0;
+    facesArray[0] = 6;
+    facesArray[1] = 0;
+    facesArray[2] = 0;
+    selectFaces == 0;
     Serial.println(customKey);
     break;
 
   case 'D':
-    selectFaces = 1;
+    if (selectFaces == 0){
+      selectFaces = 1;
+    }
+      else {
+        selectFaces = 0;
+      }
     Serial.println(customKey);
     break;
 
   case '*':
-    diceFaces = 0;
-    diceNumber = 0;
-    selectFaces = 0;
-    numberIter = 1;
-    facesIter = 2;
-    facesBuffer[0] = 0;
-    facesBuffer[1] = 0;
-    numberBuffer[0] = 0;
-    numberBuffer[1] = 0;
-    numberBuffer[2] = 0;
+  callGlobalClear();
     Serial.println(customKey);
     break;
 
   case '#':
-
-    for (int i = 0; i < 2; i++) {
-        numberD *= 10;
-        numberD += numberBuffer[i];
-    }
-    diceNumber = numberD;
-    for (int i = 0; i < 3; i++) {
-        numberF *= 10;
-        numberF += facesBuffer[i];
-    }
-    diceFaces = numberF;
-    
-    randNumber = random(1, diceNumber * diceFaces +1);
+    callConvertArray();
+    randNumber = random(1, diceNumber * diceFaces + 1);
     Serial.println(diceNumber);
     Serial.println(diceFaces);
     Serial.println(randNumber);
     break;    
     
   case '0':
-    callBuffer(0);
+    callArray(0);
     Serial.println(customKey);
     break;
     
   case '1':
-    callBuffer(1);
+    callArray(1);
     Serial.println(customKey);
     break;
     
   case '2':
-    callBuffer(2);
+    callArray(2);
     Serial.println(customKey);
     break;
   
   case '3':
-    callBuffer(3);
+    callArray(3);
     Serial.println(customKey);
     break;  
 
   case '4':
-    callBuffer(4);
+    callArray(4);
     Serial.println(customKey);
     break;
     
   case '5':
-    callBuffer(5);
+    callArray(5);
     Serial.println(customKey);
     break;
     
   case '6':
-    callBuffer(6);
+    callArray(6);
     Serial.println(customKey);
     break;
 
   case '7':
-    callBuffer(7);
+    callArray(7);
     Serial.println(customKey);
     break;  
 
   case '8':
-    callBuffer(8);
+    callArray(8);
     Serial.println(customKey);
     break;
 
   case '9':
-    callBuffer(9);
+    callArray(9);
     Serial.println(customKey);
     break;
   
