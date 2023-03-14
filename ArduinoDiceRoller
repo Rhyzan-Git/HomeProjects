@@ -1,21 +1,32 @@
-https://www.circuitbasics.com/how-to-set-up-a-keypad-on-an-arduino/
+//https://www.circuitbasics.com/how-to-set-up-a-keypad-on-an-arduino/
 
-
-
-Functions
-
-Change Dice
-
-Generate random number
-randomSeed(seed)
-random(min, max)
-Roll random number
-
-Display random number
-
-
+//Header Files
 //Keypad header file
+#include <Key.h>
 #include <Keypad.h>
+
+//Functions
+
+
+//Setup
+long randNumber;
+int diceFaces = 0;
+int diceNumber = 0;
+int selectFaces = 0;
+int facesBuffer[3];
+int numberBuffer[2];
+int numberIter = 0;
+int facesIter = 0;
+
+    int numberD, numberF = 0;
+//Change Dice
+
+//Generate random number
+//randomSeed(seed)
+//random(min, max)
+//Roll random number
+
+//Display random number
 
 //Keypad reserved bytes
 const byte ROWS = 4; 
@@ -36,34 +47,138 @@ byte colPins[COLS] = {5, 4, 3, 2};
 //Used to read key press - char customKey = customKeypad.getKey();
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
+void callBuffer(int x){
+  if (selectFaces == 0){
+    numberBuffer[numberIter] = x;
+    numberIter++;
+    }
+    else{
+      facesBuffer[facesIter] = x;
+      facesIter++;
+      }
+  return;    
+}
+
 void setup(){
   Serial.begin(9600);
+  randomSeed(analogRead(0));
 }
   
 void loop(){
   char customKey = customKeypad.getKey();
-  
-	if (customKey = '*'){
-		Serial.println("Screen Cleared!");
-	}
-	
-    if (customKey = '#'){
-		Serial.println("Dice Rolled!");
-	}
-	
-    if (customKey = 'A'){
-		Serial.println("Preset 1 Selected");
-	}
+
+switch(customKey) {
+   
+  case 'A':
+    diceFaces = 20;
+    diceNumber = 1;
+    Serial.println(customKey);
+    break;
     
-	if (customKey = 'B'){
-		Serial.println("Preset 2 Selected");
-	}
-    if (customKey = 'C'){
-		Serial.println("Preset 3 Selected");
-	}
-	
-    if (customKey = 'D'){
-		Serial.println("Dice number recorded, select dice faces");
-	}
+  case 'B':
+    diceFaces = 8;
+    diceNumber = 1;
+    Serial.println(customKey);
+    break; 
+
+  case 'C':
+    diceFaces = 6;
+    diceNumber = 1;
+    Serial.println(customKey);
+    break;
+
+  case 'D':
+    selectFaces = 1;
+    Serial.println(customKey);
+    break;
+
+  case '*':
+    diceFaces = 0;
+    diceNumber = 0;
+    selectFaces = 0;
+    numberIter = 1;
+    facesIter = 2;
+    facesBuffer[0] = 0;
+    facesBuffer[1] = 0;
+    numberBuffer[0] = 0;
+    numberBuffer[1] = 0;
+    numberBuffer[2] = 0;
+    Serial.println(customKey);
+    break;
+
+  case '#':
+
+    for (int i = 0; i < 2; i++) {
+        numberD *= 10;
+        numberD += numberBuffer[i];
+    }
+    diceNumber = numberD;
+    for (int i = 0; i < 3; i++) {
+        numberF *= 10;
+        numberF += facesBuffer[i];
+    }
+    diceFaces = numberF;
+    
+    randNumber = random(1, diceNumber * diceFaces +1);
+    Serial.println(diceNumber);
+    Serial.println(diceFaces);
+    Serial.println(randNumber);
+    break;    
+    
+  case '0':
+    callBuffer(0);
+    Serial.println(customKey);
+    break;
+    
+  case '1':
+    callBuffer(1);
+    Serial.println(customKey);
+    break;
+    
+  case '2':
+    callBuffer(2);
+    Serial.println(customKey);
+    break;
   
+  case '3':
+    callBuffer(3);
+    Serial.println(customKey);
+    break;  
+
+  case '4':
+    callBuffer(4);
+    Serial.println(customKey);
+    break;
+    
+  case '5':
+    callBuffer(5);
+    Serial.println(customKey);
+    break;
+    
+  case '6':
+    callBuffer(6);
+    Serial.println(customKey);
+    break;
+
+  case '7':
+    callBuffer(7);
+    Serial.println(customKey);
+    break;  
+
+  case '8':
+    callBuffer(8);
+    Serial.println(customKey);
+    break;
+
+  case '9':
+    callBuffer(9);
+    Serial.println(customKey);
+    break;
+  
+  default:
+    // code block
+    return;
+}
+
+delay(50);
 }
