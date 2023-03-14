@@ -1,9 +1,25 @@
 //https://www.circuitbasics.com/how-to-set-up-a-keypad-on-an-arduino/
 
-//Header Files
-//Keypad header file
+//Libraries
+#include <LiquidCrystal.h>
 #include <Key.h>
 #include <Keypad.h>
+
+//------------------------------------------------------------------------------
+// Initialize the library by associating any needed LCD interface pin
+// with the arduino pin number it is connected to
+const int rs = 12;    // Pin 12 on Arduino, Pin 4 (rs) on LCD
+const int en = 11;    // Pin 11 on Arduino, Pin 6 (en) on LCD
+const int d4 = 5;     // Pin 5 on Arduino, Pin 11 (d4) on LCD
+const int d5 = 4;     // Pin 4 on Arduino, Pin 12 (d5) on LCD
+const int d6 = 3;     // Pin 3 on Arduino, Pin 13 (d6) on LCD
+const int d7 = 2;     // Pin 2 on Arduino, Pin 14 (d7) on LCD
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+char buffer1[17] = "";                //Formatting buffer to display to the LCD
+char buffer2[17] = "";                //Formatting buffer to display to the LCD
+//------------------------------------------------------------------------------
+
 
 //Setup
 long randNumber;          //Random number rolled to be displayed
@@ -56,36 +72,39 @@ void callArray(int x){
     facesArray[1] = facesArray[0];
     facesArray[0] = x;
     }
+  sprintf(buffer1, "Selected: %1d%1dd%1d%1d%1d%\n", numberArray[1],numberArray[0],facesArray[2],facesArray[1],facesArray[0]);
+  lcd.setCursor(0, 0);
+  lcd.print(buffer1);
+  Serial.println(buffer1);  
   return;    
 }
 
+//Resets all values back to default
 void callGlobalClear(){
-    diceFaces = 0;
-    diceNumber = 0;
-    selectFaces = 0;
-    numberIter = 1;
-    facesIter = 2;
-    facesArray[0] = 0;
-    facesArray[1] = 0;
-    numberArray[0] = 0;
-    numberArray[1] = 0;
-    numberArray[2] = 0;
+  diceFaces = 0;
+  diceNumber = 0;
+  selectFaces = 0;
+  numberIter = 1;
+  facesIter = 2;
+  facesArray[0] = 0;
+  facesArray[1] = 0;
+  facesArray[2] = 0;
+  numberArray[0] = 0;
+  numberArray[1] = 0;
+
   return;
 }
 
+//Converts array into long integer
 void callConvertArray(){
   int numberD = 0;
   int numberF = 0;
-  
   numberD = (numberArray[1]*10) + numberArray[0];
   diceNumber = numberD;
-  
   numberF = (facesArray[2]*100) + (facesArray[1]*10) + facesArray[0];
   diceFaces = numberF;
-
   return;
 }
-
 
 void setup(){
   Serial.begin(9600);
@@ -104,6 +123,10 @@ switch(customKey) {
     facesArray[1] = 2;
     facesArray[2] = 0;
     selectFaces == 0;
+    sprintf(buffer1, "Selected: %1d%1dd%1d%1d%1d%\n", numberArray[1],numberArray[0],facesArray[2],facesArray[1],facesArray[0]);
+    lcd.setCursor(0, 0);
+    lcd.print(buffer1);
+    Serial.println(buffer1);  
     Serial.println(customKey);
     break;
     
@@ -114,6 +137,10 @@ switch(customKey) {
     facesArray[1] = 0;
     facesArray[2] = 0;
     selectFaces == 0;
+    sprintf(buffer1, "Selected: %1d%1dd%1d%1d%1d%\n", numberArray[1],numberArray[0],facesArray[2],facesArray[1],facesArray[0]);
+    lcd.setCursor(0, 0);
+    lcd.print(buffer1);
+    Serial.println(buffer1); 
     Serial.println(customKey);
     break; 
 
@@ -124,6 +151,10 @@ switch(customKey) {
     facesArray[1] = 0;
     facesArray[2] = 0;
     selectFaces == 0;
+    sprintf(buffer1, "Selected: %1d%1dd%1d%1d%1d%\n", numberArray[1],numberArray[0],facesArray[2],facesArray[1],facesArray[0]);
+    lcd.setCursor(0, 0);
+    lcd.print(buffer1);
+    Serial.println(buffer1); 
     Serial.println(customKey);
     break;
 
@@ -138,16 +169,17 @@ switch(customKey) {
     break;
 
   case '*':
-  callGlobalClear();
+    callGlobalClear();
     Serial.println(customKey);
     break;
 
   case '#':
     callConvertArray();
-    randNumber = random(1, diceNumber * diceFaces + 1);
-    Serial.println(diceNumber);
-    Serial.println(diceFaces);
-    Serial.println(randNumber);
+    randNumber = random(1 * diceNumber, diceNumber * diceFaces + 1);
+    sprintf(buffer2, "Rolled:    %5d\n",randNumber);
+    lcd.setCursor(0, 1);
+    lcd.print(buffer2);
+    Serial.println(buffer2); 
     break;    
     
   case '0':
