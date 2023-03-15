@@ -8,12 +8,12 @@
 //------------------------------------------------------------------------------
 // Initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
-const int rs = 12;    // Pin 12 on Arduino, Pin 4 (rs) on LCD
-const int en = 11;    // Pin 11 on Arduino, Pin 6 (en) on LCD
-const int d4 = 5;     // Pin 5 on Arduino, Pin 11 (d4) on LCD
-const int d5 = 4;     // Pin 4 on Arduino, Pin 12 (d5) on LCD
-const int d6 = 3;     // Pin 3 on Arduino, Pin 13 (d6) on LCD
-const int d7 = 2;     // Pin 2 on Arduino, Pin 14 (d7) on LCD
+const int rs = a1;    // Pin a1 on Arduino, Pin 4 (rs) on LCD
+const int en = a2;    // Pin a2 on Arduino, Pin 6 (en) on LCD
+const int d4 = 13;     // Pin 13 on Arduino, Pin 11 (d4) on LCD
+const int d5 = 12;     // Pin 12 on Arduino, Pin 12 (d5) on LCD
+const int d6 = 11;     // Pin 11 on Arduino, Pin 13 (d6) on LCD
+const int d7 = 10;     // Pin 10 on Arduino, Pin 14 (d7) on LCD
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 char buffer1[17] = "";                //Formatting buffer to display to the LCD
