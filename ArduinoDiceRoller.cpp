@@ -1,3 +1,20 @@
+//Arduino Nano pin out. Rework needed.... (Wire A7 on PCB to A3 on Nano) (Wire A6 on PCB to A2 on Nano)
+const int rs = 11;    // Pin D11 on Nano, Pin 4 (rs) on LCD
+const int en = 10;    // Pin D10 on Nano, Pin 6 (en) on LCD
+const int d4 = 17;    // Pin A3 on Nano, Pin 11 (d4) on LCD
+const int d5 = 16;    // Pin A2 on Nano, Pin 12 (d5) on LCD
+const int d6 = 19;    // Pin A5 on Nano, Pin 13 (d6) on LCD
+const int d7 = 18;    // Pin A4 on Nano, Pin 14 (d7) on LCD
+
+//Physical pins to Nano
+byte rowPins[ROWS] = {2, 3, 4, 5}; 
+byte colPins[COLS] = {6, 7, 8, 9}; 
+
+randomSeed(analogRead(0));   //D14(A0) on Nano
+
+
+
+
 //------------------------------------------------------------------------------
 //Libraries
 #include <LiquidCrystal.h>
